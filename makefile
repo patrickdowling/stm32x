@@ -57,14 +57,14 @@ BUILD_DIR	?= build/$(PROJECT)/
 OPTIMIZE ?= -O2
 FLASH_TARGET ?= flash_bmp
 
-STM32F0_DIR = stm32f0/
-EXTERN_SRC_DIR = $(STM32F0_DIR)extern/
-SCRIPT_DIR = $(STM32F0_DIR)scripts/
+STM32F0XX_DIR = stm32f0xx/
+EXTERN_SRC_DIR = $(STM32F0XX_DIR)extern/
+SCRIPT_DIR = $(STM32F0XX_DIR)scripts/
 
 PROJECT_SRC_DIRS += $(PROJECT_RESOURCE_DIR)
 PROJECT_RESOURCE_FILE = $(PROJECT_RESOURCE_SCRIPT:.py=.cc)
 
-PROJECT_SRC_DIRS += $(STM32F0_DIR)src
+PROJECT_SRC_DIRS += $(STM32F0XX_DIR)src
 
 SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += GCC_ARMCM0
@@ -72,7 +72,7 @@ SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
 STARTUP_FILE     = startup_stm32f0xx.s
-LINKER_SCRIPT_IN = $(STM32F0_DIR)linker/stm32f0xx_flash.ld.in
+LINKER_SCRIPT_IN = $(STM32F0XX_DIR)linker/stm32f0xx_flash.ld.in
 
 C_FLAGS    += -g -Wall -Werror -fasm -finline -finline-functions-called-once -fdata-sections -ffunction-sections -fshort-enums -fno-move-loop-invariants
 CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11
@@ -82,8 +82,8 @@ ARCH_FLAGS = -mcpu=cortex-m0 -mthumb -mthumb-interwork -funroll-loops --specs=na
 ## Source & object files
 #
 INCLUDES += $(PROJECT_INCLUDE_DIRS)
-INCLUDES += $(STM32F0_DIR)include
-INCLUDES += $(STM32F0_DIR) $(EXTERN_SRC_DIR)
+INCLUDES += $(STM32F0XX_DIR)include
+INCLUDES += $(STM32F0XX_DIR) $(EXTERN_SRC_DIR)
 
 C_FILES   = $(notdir $(wildcard $(patsubst %,%/*.c,$(PROJECT_SRC_DIRS))))
 CC_FILES  = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PROJECT_SRC_DIRS))))
