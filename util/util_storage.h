@@ -33,8 +33,8 @@
 // there might be more effective ways to handle this with less erasing but it
 // hardly seems worth it.
 
-#ifndef STM32F0_UTIL_STORAGE_H_
-#define STM32F0_UTIL_STORAGE_H_
+#ifndef STM32X_UTIL_STORAGE_H_
+#define STM32X_UTIL_STORAGE_H_
 
 #include <inttypes.h>
 #include "util/util_macros.h"
@@ -200,4 +200,4 @@ private:
 
 }; // namespace util
 
-#endif // STM32F0_UTIL_STORAGE_H_
+#endif // STM32X_UTIL_STORAGE_H_

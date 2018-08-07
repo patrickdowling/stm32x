@@ -37,82 +37,72 @@
 # FLASH_SETTINGS_SIZE (optional)
 # PROJECT_INCLUDE_DIRS
 
-check_variables_defined = \
+check_variable_list = \
     $(strip $(foreach 1,$1, \
-        $(call __check_variables_defined,$1,$(strip $(value 2)))))
-__check_variables_defined = \
+        $(call __check_variable_list,$1,$(strip $(value 2)))))
+__check_variable_list = \
     $(if $(value $1),, \
       $(error Undefined $1$(if $2, ($2))))
 
-$(call check_variables_defined, PROJECT PROJECT_SRC_DIRS)
-$(call check_variables_defined, MODEL, F_CPU)
-$(call check_variables_defined, RAM_SIZE FLASH_SIZE)
+$(call check_variable_list, PROJECT PROJECT_SRC_DIRS)
+$(call check_variable_list, MODEL, F_CPU)
+$(call check_variable_list, RAM_SIZE FLASH_SIZE)
 
 ###
 ## General setup
 #
-
 TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
 BUILD_DIR	?= build/$(PROJECT)/
 OPTIMIZE ?= -O2
 FLASH_TARGET ?= flash_bmp
 
-STM32F0XX_DIR = stm32f0xx/
-EXTERN_SRC_DIR = $(STM32F0XX_DIR)extern/
-SCRIPT_DIR = $(STM32F0XX_DIR)scripts/
+STM32X_DIR = stm32x/
+SCRIPT_DIR = $(STM32X_DIR)scripts/
 
 PROJECT_SRC_DIRS += $(PROJECT_RESOURCE_DIR)
 PROJECT_RESOURCE_FILE = $(PROJECT_RESOURCE_SCRIPT:.py=.cc)
 
-PROJECT_SRC_DIRS += $(STM32F0XX_DIR)src
+PROJECT_SRC_DIRS += $(STM32X_DIR)util
 
 SYSTEM_DEFINES += $(MODEL)
-SYSTEM_DEFINES += GCC_ARMCM0
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
-STARTUP_FILE     = startup_stm32f0xx.s
-LINKER_SCRIPT_IN = $(STM32F0XX_DIR)linker/stm32f0xx_flash.ld.in
-
 C_FLAGS    += -g -Wall -Werror -fasm -finline -finline-functions-called-once -fdata-sections -ffunction-sections -fshort-enums -fno-move-loop-invariants
 CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11
-ARCH_FLAGS = -mcpu=cortex-m0 -mthumb -mthumb-interwork -funroll-loops --specs=nano.specs
+
+###
+## Model-specific handling
+#
+ifneq (,$(findstring STM32F0,$(MODEL)))
+MODEL_DIR = $(STM32X_DIR)F0xx/
+else ifneq (,$(findstring STM32F3,$(MODEL)))
+MODEL_DIR = $(STM32X_DIR)F3xx/
+endif
+
+ifeq (,$(MODEL_DIR))
+MODEL_DIR = $(error Undefined model '$(MODEL)')
+endif
+include $(MODEL_DIR)/makefile
 
 ###
 ## Source & object files
 #
 INCLUDES += $(PROJECT_INCLUDE_DIRS)
-INCLUDES += $(STM32F0XX_DIR)include
-INCLUDES += $(STM32F0XX_DIR) $(EXTERN_SRC_DIR)
+INCLUDES += $(STM32X_DIR)
 
-C_FILES   = $(notdir $(wildcard $(patsubst %,%/*.c,$(PROJECT_SRC_DIRS))))
-CC_FILES  = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PROJECT_SRC_DIRS))))
-AS_FILES  = $(notdir $(wildcard $(patsubst %,%/*.s,$(PROJECT_SRC_DIRS))))
-AS_FILES += $(STARTUP_FILE)
+C_FILES   += $(notdir $(wildcard $(patsubst %,%/*.c,$(PROJECT_SRC_DIRS))))
+CC_FILES  += $(notdir $(wildcard $(patsubst %,%/*.cc,$(PROJECT_SRC_DIRS))))
+AS_FILES  += $(notdir $(wildcard $(patsubst %,%/*.s,$(PROJECT_SRC_DIRS))))
 
-VPATH = $(PROJECT_SRC_DIRS)
+VPATH += $(PROJECT_SRC_DIRS)
 OBJDIR = $(BUILD_DIR)
 
 RESOURCE_PY_FILES = $(filter-out $(PROJECT_RESOURCE_SCRIPT), $(wildcard $(PROJECT_RESOURCE_DIR)[!_]*.py))
 
-
 ###
 ## System core and linker
 #
-STM32_CMSIS=$(EXTERN_SRC_DIR)CMSIS/
-STM32_STDPERIPH=$(EXTERN_SRC_DIR)STM32F0xx_StdPeriph_Driver/
-
-INCLUDES += $(STM32_CMSIS)STM32F0xx/Include/
-INCLUDES += $(STM32_CMSIS)Include/
-INCLUDES += $(STM32_STDPERIPH)
-INCLUDES += $(STM32_STDPERIPH)inc/
-
-C_FILES += $(notdir $(wildcard $(patsubst %,%/*.c,$(STM32_STDPERIPH)src)))
-C_FILES += $(notdir $(wildcard $(patsubst %,%/*.c,$(STM32_CMSIS)STM32F0xx/Source)))
-
-VPATH += $(STM32_STDPERIPH)src/
-VPATH += $(STM32_CMSIS)STM32F0xx/Source/
-
 SYSTEM_DEFINES += \
 	RAM_SIZE=$(shell $(NUMFMT) --from=iec $(RAM_SIZE)) \
 	FLASH_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SIZE)) \

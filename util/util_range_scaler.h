@@ -1,5 +1,5 @@
-#ifndef STM32F0_UTIL_RANGE_SCALER_H_
-#define STM32F0_UTIL_RANGE_SCALER_H_
+#ifndef STM32X_UTIL_RANGE_SCALER_H_
+#define STM32X_UTIL_RANGE_SCALER_H_
 
 #include <algorithm>
 #include <inttypes.h>
@@ -47,4 +47,4 @@ protected:
 
 }; // namespace util
 
-#endif // STM32F0_UTIL_RANGE_SCALER_H_
+#endif // STM32X_UTIL_RANGE_SCALER_H_

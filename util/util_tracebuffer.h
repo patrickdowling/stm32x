@@ -26,8 +26,8 @@
 //
 // Stupidly simple tracer
 
-#ifndef STM32F0_UTIL_TRACEBUFFER_H_
-#define STM32F0_UTIL_TRACEBUFFER_H_
+#ifndef STM32X_UTIL_TRACEBUFFER_H_
+#define STM32X_UTIL_TRACEBUFFER_H_
 
 namespace util {
 
@@ -51,4 +51,4 @@ private:
 
 }; // namespace util
 
-#endif // STM32F0_UTIL_TRACEBUFFER_H_
+#endif // STM32X_UTIL_TRACEBUFFER_H_

@@ -29,8 +29,8 @@
 // - Pretty much assumes single producer/consumer
 // - Assume size is pow2
 
-#ifndef STM32F0_UTIL_RINGBUFFER_H_
-#define STM32F0_UTIL_RINGBUFFER_H_
+#ifndef STM32X_UTIL_RINGBUFFER_H_
+#define STM32X_UTIL_RINGBUFFER_H_
 
 #include <stdint.h>
 #include "util/util_macros.h"
@@ -89,4 +89,4 @@ private:
 
 }; // namespace util
 
-#endif // STM32F0_UTIL_RINGBUFFER_H_
+#endif // STM32X_UTIL_RINGBUFFER_H_

@@ -22,8 +22,8 @@
 //
 // Misc useful macros & things
 
-#ifndef STM32F0_UTIL_MACROS_H_
-#define STM32F0_UTIL_MACROS_H_
+#ifndef STM32X_UTIL_MACROS_H_
+#define STM32X_UTIL_MACROS_H_
 
 #include <stdint.h>
 #include <string.h>
@@ -46,4 +46,4 @@ struct FOURCC {
 #define CONCAT(x, y) _CONCAT(x, y)
 #define _CONCAT(x, y) x##y
 
-#endif // STM32F0_UTIL_MACROS_H_
+#endif // STM32X_UTIL_MACROS_H_
