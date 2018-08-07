@@ -105,8 +105,13 @@ RESOURCE_PY_FILES = $(filter-out $(PROJECT_RESOURCE_SCRIPT), $(wildcard $(PROJEC
 #
 SYSTEM_DEFINES += \
 	RAM_SIZE=$(shell $(NUMFMT) --from=iec $(RAM_SIZE)) \
-	FLASH_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SIZE)) \
+	FLASH_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SIZE))
+
+ifneq (,$(FLASH_SETTINGS_SIZE))
+SYSTEM_DEFINES += \
 	FLASH_SETTINGS_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SETTINGS_SIZE))
+endif
+
 ifeq ($(ENABLE_LIBC_INIT_ARRAY),TRUE)
 	SYSTEM_DEFINES += ENABLE_LIBC_INIT_ARRAY
 endif
