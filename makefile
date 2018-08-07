@@ -76,8 +76,8 @@ CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11
 #
 ifneq (,$(findstring STM32F0,$(MODEL)))
 MODEL_DIR = $(STM32X_DIR)F0xx/
-else ifneq (,$(findstring STM32F3,$(MODEL)))
-MODEL_DIR = $(STM32X_DIR)F3xx/
+else ifneq (,$(findstring STM32F37,$(MODEL)))
+MODEL_DIR = $(STM32X_DIR)F37x/
 endif
 
 ifeq (,$(MODEL_DIR))
