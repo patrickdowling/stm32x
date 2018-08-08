@@ -75,15 +75,16 @@ CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11
 ## Model-specific handling
 #
 ifneq (,$(findstring STM32F0,$(MODEL)))
-MODEL_DIR = $(STM32X_DIR)F0xx/
+MODEL_INC = $(STM32X_DIR)makefile.F0xx.inc
 else ifneq (,$(findstring STM32F37,$(MODEL)))
-MODEL_DIR = $(STM32X_DIR)F37x/
+MODEL_INC = $(STM32X_DIR)makefile.F37x.inc
 endif
 
-ifeq (,$(MODEL_DIR))
-MODEL_DIR = $(error Undefined model '$(MODEL)')
+ifeq (,$(MODEL_INC))
+MODEL_INC = $(error Undefined model '$(MODEL)')
 endif
-include $(MODEL_DIR)/makefile
+ST_DIR = $(STM32X_DIR)extern/ST/
+include $(MODEL_INC)/makefile
 
 ###
 ## Source & object files

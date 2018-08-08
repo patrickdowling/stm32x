@@ -24,25 +24,22 @@
 #
 # F0 specifics
 
-STARTUP_FILE = startup_stm32f37x.s
-LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f37x_flash.ld.in
-SYSTEM_DEFINES += GCC_ARMCM4
-ARCH_FLAGS = -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork -funroll-loops --specs=nano.specs
-
-STARTUP_FILE     = startup_stm32f0xx.s
+STARTUP_FILE = startup_stm32f0xx.s
 LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f0xx_flash.ld.in
+SYSTEM_DEFINES += GCC_ARMCM0
+ARCH_FLAGS = -mcpu=cortex-m0 -mthumb -mthumb-interwork -funroll-loops --specs=nano.specs
 
-STM32_CMSIS_DIR=$(MODEL_DIR)CMSIS/
-STM32_STDPERIPH_DIR=$(MODEL_DIR)STM32F37x_StdPeriph_Driver/
+STM32_CMSIS_DIR=$(ST_DIR)CMSIS/
+STM32_STDPERIPH_DIR=$(ST_DIR)STM32F0xx_StdPeriph_Driver/
 
-INCLUDES += $(MODEL_DIR)
+INCLUDES += $(ST_DIR)
 INCLUDES += $(STM32_CMSIS_DIR)STM32F0xx/Include/
 INCLUDES += $(STM32_CMSIS_DIR)Include/
 INCLUDES += $(STM32_STDPERIPH_DIR)inc/
 
 PROJECT_SRC_DIRS += $(STM32_STDPERIPH_DIR)src
-PROJECT_SRC_DIRS += $(MODEL_DIR)/stm32f3
+PROJECT_SRC_DIRS += $(STM32X_DIR)stm32f0
 
-C_FILES += system_stm32f37x.c
+C_FILES += system_stm32f0xx.c
 AS_FILES += $(STARTUP_FILE)
-VPATH += $(STM32_CMSIS_DIR)STM32F37x/Source/
+VPATH += $(STM32_CMSIS_DIR)STM32F0xx/Source/
