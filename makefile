@@ -84,7 +84,7 @@ ifeq (,$(MODEL_INC))
 MODEL_INC = $(error Undefined model '$(MODEL)')
 endif
 ST_DIR = $(STM32X_DIR)extern/ST/
-include $(MODEL_INC)/makefile
+include $(MODEL_INC)
 
 ###
 ## Source & object files
