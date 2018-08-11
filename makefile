@@ -205,6 +205,7 @@ $(SIZEFILE): $(ELFFILE)
 	$(Q)$(SIZE) $(ELFFILE) > $(SIZEFILE)
 
 $(DISFILE): $(ELFFILE)
+	$(ECHO) "DIS $@..."
 	$(Q)$(OBJDUMP) -d -h -S $< > $@
 
 ###
