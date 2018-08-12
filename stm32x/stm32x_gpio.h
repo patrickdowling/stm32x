@@ -91,7 +91,7 @@ template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO
 using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af>;
 
 template <GPIO_PORT port, uint16_t pin>
-using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::LOW, GPIO_OTYPE::PP, GPIO_PUPD::PULLUP>;
+using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::FASTEST, GPIO_OTYPE::PP, GPIO_PUPD::NONE>;
 
 }; // namespace stm32x
 
