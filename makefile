@@ -69,7 +69,9 @@ SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
 C_FLAGS    += -g -Wall -Werror -fasm -finline -finline-functions-called-once -fdata-sections -ffunction-sections -fshort-enums -fno-move-loop-invariants
-CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11
+CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11 -fno-use-cxa-atexit
+
+ARCH_FLAGS += -mthumb -mthumb-interwork -funroll-loops -specs=nano.specs -specs=nosys.specs
 
 ###
 ## Model-specific handling

@@ -27,7 +27,7 @@
 STARTUP_FILE = startup_stm32f0xx.s
 LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f0xx_flash.ld.in
 SYSTEM_DEFINES += GCC_ARMCM0 STM32X_F0XX
-ARCH_FLAGS = -mcpu=cortex-m0 -mthumb -mthumb-interwork -funroll-loops --specs=nano.specs
+ARCH_FLAGS += -mcpu=cortex-m0
 
 STM32_CMSIS_DIR=$(ST_DIR)CMSIS/
 STM32_STDPERIPH_DIR=$(ST_DIR)STM32F0xx_StdPeriph_Driver/
