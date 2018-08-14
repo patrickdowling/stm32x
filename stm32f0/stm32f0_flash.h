@@ -66,7 +66,7 @@ public:
     length >>= 1;
     const uint16_t *src = static_cast<const uint16_t *>(data);
     while (length--)
-      CRC->DR = *src++;
+       *(uint16_t*)(CRC_BASE) = *src++;
     return CRC->DR;
   }
 

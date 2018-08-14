@@ -25,20 +25,7 @@
 #ifndef STM32X_MODEL_H_
 #define STM32X_MODEL_H_
 
-#if defined STM32X_F0XX
-# include "stm32f0xx.h"
-#elif defined STM32X_F37X
-# include "stm32f37x.h"
-#else
-#error "INVALID MODEL"
-#endif
-
 namespace stm32x {
-enum GPIO_PORT : short;
-enum struct GPIO_MODE : uint8_t;
-enum struct GPIO_SPEED : uint8_t;
-enum struct GPIO_OTYPE : uint8_t;
-enum struct GPIO_PUPD : uint8_t;
 
 // TODO: Model-specific speeds? F37x seems to diverge
 

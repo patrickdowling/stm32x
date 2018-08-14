@@ -27,8 +27,8 @@
 // I2C slave helper; hold receive and transmitting data buffer as well as some
 // minimal state to be able to make decisions based on I2C events.
 
-#ifndef TTIEXP_I2C_SLAVE_H_
-#define TTIEXP_I2C_SLAVE_H_
+#ifndef STM32X_I2C_SLAVE_HELPER_H_
+#define STM32X_I2C_SLAVE_HELPER_H_
 
 #include <string.h>
 #include <stdint.h>
@@ -141,4 +141,4 @@ private:
 
 }; // namespace i2c
 
-#endif // TTIEXP_I2C_SLAVE_H_
+#endif // STM32X_I2C_SLAVE_HELPER_H_

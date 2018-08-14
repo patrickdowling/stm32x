@@ -35,6 +35,7 @@ void FlashStorage::Init(uint16_t version)
 {
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
 
+	CRC->POL = 0x04C11DB7;
 	CRC->IDR = 0;
 	CRC->INIT = version;
 	CRC->CR = CRC_CR_RESET;
