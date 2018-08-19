@@ -46,4 +46,10 @@ struct FOURCC {
 #define CONCAT(x, y) _CONCAT(x, y)
 #define _CONCAT(x, y) x##y
 
+#ifndef SWAP
+#define SWAP(a, b) do { auto t = a; a = b; b = t; } while(0)
+#endif
+
+#define ALWAYS_INLINE __attribute__((always_inline))
+
 #endif // STM32X_UTIL_MACROS_H_

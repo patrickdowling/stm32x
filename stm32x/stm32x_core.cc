@@ -22,62 +22,15 @@
 // 
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
-#ifndef STM32X_CORE_H_
-#define STM32X_CORE_H_
 
-#include <stdint.h>
-#include "util/util_macros.h"
-
-#if defined STM32X_F0XX
-# include "stm32f0xx.h"
-#elif defined STM32X_F37X
-# include "stm32f37x.h"
-#else
-#error "INVALID MODEL"
-#endif
+#include "stm32x/stm32x_core.h"
 
 namespace stm32x {
-// GPIO forward declarations
-enum GPIO_PORT : short;
-enum struct GPIO_MODE : uint8_t;
-enum struct GPIO_SPEED : uint8_t;
-enum struct GPIO_OTYPE : uint8_t;
-enum struct GPIO_PUPD : uint8_t;
 
-// Core timing and other functionality common to all platforms
-class Core {
-public:
-  DISALLOW_COPY_AND_ASSIGN(Core);
-  Core() { }
-  ~Core() { }
+void Core::Init(uint32_t systick_ticks)
+{
+	ticks_ = 0;
+  SysTick_Config(systick_ticks); 
+}
 
-  void Init(uint32_t systick_ticks);
-
-  void Tick() {
-    ++ticks_;
-  }
-
-  inline uint32_t now() const {
-    return ticks_;
-  }
-
-  void Delay(uint32_t ticks) {
-    uint32_t end = ticks_ + ticks;
-    while (now() <= end) { }
-  }
-
-private:
-  volatile uint32_t ticks_;
-};
-
-extern Core core;
 }; // namespace stm32x
-
-#define STM32X_CORE_DEFINE() namespace stm32x { stm32x::Core core; }
-#define STM32X_CORE_INIT(systick_ticks) do { stm32x::core.Init(systick_ticks); } while (0)
-#define STM32X_CORE_TICK() do { stm32x::core.Tick(); } while (0)
-
-#include "stm32x_model.h"
-#include "stm32x_gpio.h"
-
-#endif // STM32X_CORE_H_
