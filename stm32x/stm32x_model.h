@@ -31,19 +31,20 @@ namespace stm32x {
 
 #if defined STM32X_F0XX || defined STM32X_F37X
 template <typename base> struct GPIOxImpl {
-  static inline void Set(uint16_t mask) {
-    base::REGS->BSRR = mask;
+
+  static inline void Set(uint16_t mask) ALWAYS_INLINE {
+    ((GPIO_TypeDef *)base::REGS)->BSRR = mask;
   }
-  static inline void Reset(uint16_t mask) {
-    base::REGS->BRR = mask;
+  static inline void Reset(uint16_t mask) ALWAYS_INLINE {
+    ((GPIO_TypeDef *)base::REGS)->BRR = mask;
   }
 
-  static inline bool Read(uint16_t mask) {
-    return base::REGS->IDR & mask;
+  static inline bool Read(uint16_t mask) ALWAYS_INLINE {
+    return ((GPIO_TypeDef *)base::REGS)->IDR & mask;
   }
 
   static inline void Init(uint16_t mask, uint16_t pinsource, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af) {
-    GPIO_PinAFConfig(base::REGS, pinsource, af);
+    GPIO_PinAFConfig(((GPIO_TypeDef *)base::REGS), pinsource, af);
     Init(mask, mode, speed, otype, pupd);
   }
 
@@ -54,7 +55,7 @@ template <typename base> struct GPIOxImpl {
     gpio_init.GPIO_Speed = static_cast<GPIOSpeed_TypeDef>(speed);
     gpio_init.GPIO_OType = static_cast<GPIOOType_TypeDef>(otype);
     gpio_init.GPIO_PuPd = static_cast<GPIOPuPd_TypeDef>(pupd);
-    GPIO_Init(base::REGS, &gpio_init);
+    GPIO_Init(((GPIO_TypeDef *)base::REGS), &gpio_init);
   }
 
 };

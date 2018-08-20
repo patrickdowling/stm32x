@@ -52,17 +52,16 @@ enum struct GPIO_PUPD : uint8_t {
 
 // Can't use the GPIOA, GPIOB et al. GPIO_TypeDef * as template parameter
 template <GPIO_PORT port> struct GPIOxREGS { };
-template <> struct GPIOxREGS<GPIO_PORT_A> { static constexpr GPIO_TypeDef *REGS = GPIOA; };
-template <> struct GPIOxREGS<GPIO_PORT_B> { static constexpr GPIO_TypeDef *REGS = GPIOB; };
-template <> struct GPIOxREGS<GPIO_PORT_C> { static constexpr GPIO_TypeDef *REGS = GPIOC; };
-template <> struct GPIOxREGS<GPIO_PORT_D> { static constexpr GPIO_TypeDef *REGS = GPIOD; };
-template <> struct GPIOxREGS<GPIO_PORT_E> { static constexpr GPIO_TypeDef *REGS = GPIOE; };
+template <> struct GPIOxREGS<GPIO_PORT_A> { static constexpr uint32_t REGS = GPIOA_BASE; };
+template <> struct GPIOxREGS<GPIO_PORT_B> { static constexpr uint32_t REGS = GPIOB_BASE; };
+template <> struct GPIOxREGS<GPIO_PORT_C> { static constexpr uint32_t REGS = GPIOC_BASE; };
+template <> struct GPIOxREGS<GPIO_PORT_D> { static constexpr uint32_t REGS = GPIOD_BASE; };
+template <> struct GPIOxREGS<GPIO_PORT_E> { static constexpr uint32_t REGS = GPIOE_BASE; };
 
 
 template <GPIO_PORT port>
 struct GPIOx : public GPIOxImpl<GPIOx<port>> {
-  static constexpr GPIO_TypeDef *REGS = GPIOxREGS<port>::REGS;
-
+  static constexpr uint32_t REGS = GPIOxREGS<port>::REGS;
 };
 
 template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0>
