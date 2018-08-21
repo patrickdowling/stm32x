@@ -46,6 +46,11 @@ public:
     state_ = state_ << 1 | GPIO::Read();
   }
 
+  template <typename GPIO>
+  void Poll(GPIO &gpio) {
+    state_ = state_ << 1 | gpio.Read();
+  }
+
   inline bool pressed() const {
     return state_ == 0x00;
   }

@@ -51,20 +51,58 @@ enum struct GPIO_PUPD : uint8_t {
 };
 
 // Can't use the GPIOA, GPIOB et al. GPIO_TypeDef * as template parameter
+// Although we could define a constexpr function to return them instead of
+// the template approach.
 template <GPIO_PORT port> struct GPIOxREGS { };
-template <> struct GPIOxREGS<GPIO_PORT_A> { static constexpr uint32_t REGS = GPIOA_BASE; };
-template <> struct GPIOxREGS<GPIO_PORT_B> { static constexpr uint32_t REGS = GPIOB_BASE; };
-template <> struct GPIOxREGS<GPIO_PORT_C> { static constexpr uint32_t REGS = GPIOC_BASE; };
-template <> struct GPIOxREGS<GPIO_PORT_D> { static constexpr uint32_t REGS = GPIOD_BASE; };
-template <> struct GPIOxREGS<GPIO_PORT_E> { static constexpr uint32_t REGS = GPIOE_BASE; };
-
-
-template <GPIO_PORT port>
-struct GPIOx : public GPIOxImpl<GPIOx<port>> {
-  static constexpr uint32_t REGS = GPIOxREGS<port>::REGS;
+template <> struct GPIOxREGS<GPIO_PORT_A> {
+  static constexpr uint32_t REGS = GPIOA_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOA;
+};
+template <> struct
+GPIOxREGS<GPIO_PORT_B> {
+  static constexpr uint32_t REGS = GPIOB_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOB;
+};
+template <> struct
+GPIOxREGS<GPIO_PORT_C> {
+  static constexpr uint32_t REGS = GPIOC_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOC;
+};
+template <> struct
+GPIOxREGS<GPIO_PORT_D> {
+  static constexpr uint32_t REGS = GPIOD_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOD;
+};
+template <> struct
+GPIOxREGS<GPIO_PORT_E> {
+  static constexpr uint32_t REGS = GPIOE_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOE;
 };
 
 template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0>
+struct GPIO;
+
+// GPIO Port template
+template <GPIO_PORT port>
+struct GPIOx : public GPIOxImpl<GPIOx<port>> {
+  static constexpr uint32_t REGS = GPIOxREGS<port>::REGS;
+
+  template <uint16_t pin, GPIO_PUPD pupd>
+  using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd>;
+
+  template <uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd>
+  using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd, 0>;
+
+  template <uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
+  using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af>;
+};
+
+// GPIO pin definition
+// Automatically enables peripheral clock. This leads to some duplication of
+// that code (since each pin calls the enable function), so there's some room
+// for optimzation. That said, it's not obvious how to ensure the construction
+// order in all cases to ensure an automatic central clock enable.
+template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
 struct GPIO {
   using PORT = GPIOx<port>;
 
@@ -75,6 +113,8 @@ struct GPIO {
   static inline void Reset() { PORT::Reset(Mask); }
   static inline bool Read() { return PORT::Read(Mask); }
 
+  GPIO() { Init(); }
+
   static void Init() {
     if (GPIO_MODE::AF == mode)
       PORT::Init(Mask, Source, mode, speed, otype, pupd, af);
@@ -83,6 +123,7 @@ struct GPIO {
   }
 };
 
+// Standalone GPIO definitions
 template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd>
 using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd>;
 

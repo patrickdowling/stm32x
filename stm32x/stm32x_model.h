@@ -58,6 +58,13 @@ template <typename base> struct GPIOxImpl {
     GPIO_Init(((GPIO_TypeDef *)base::REGS), &gpio_init);
   }
 
+  static void EnableClock(bool enable) {
+    if (enable)
+      RCC->AHBENR |= base::RCC_PERIPH_MASK;
+    else
+      RCC->AHBENR &= ~base::RCC_PERIPH_MASK;
+  }
+
 };
 
 #endif
