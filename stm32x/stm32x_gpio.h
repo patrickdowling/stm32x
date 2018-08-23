@@ -86,6 +86,7 @@ struct GPIO;
 template <GPIO_PORT port>
 struct GPIOx : public GPIOxImpl<GPIOx<port>> {
   static constexpr uint32_t REGS = GPIOxREGS<port>::REGS;
+  static constexpr uint32_t RCC_PERIPH_MASK = GPIOxREGS<port>::RCC_PERIPH_MASK;
 
   template <uint16_t pin, GPIO_PUPD pupd>
   using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd>;
@@ -116,6 +117,7 @@ struct GPIO {
   GPIO() { Init(); }
 
   static void Init() {
+    PORT::EnableClock(true);
     if (GPIO_MODE::AF == mode)
       PORT::Init(Mask, Source, mode, speed, otype, pupd, af);
     else

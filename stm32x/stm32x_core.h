@@ -57,13 +57,13 @@ public:
     ++ticks_;
   }
 
-  inline uint32_t now() const {
+  inline volatile uint32_t now() const {
     return ticks_;
   }
 
   void Delay(uint32_t ticks) {
-    uint32_t end = ticks_ + ticks;
-    while (now() <= end) { }
+    const uint32_t start = now();
+    while ((now() - start) < ticks) { }
   }
 
 private:

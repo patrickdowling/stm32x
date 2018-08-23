@@ -29,7 +29,7 @@ namespace stm32x {
 
 void Core::Init(uint32_t systick_ticks)
 {
-	ticks_ = 0;
+  ticks_ = 0;
   SysTick_Config(systick_ticks); 
 }
 
