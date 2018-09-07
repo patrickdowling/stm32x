@@ -110,6 +110,11 @@ SYSTEM_DEFINES += \
 	RAM_SIZE=$(shell $(NUMFMT) --from=iec $(RAM_SIZE)) \
 	FLASH_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SIZE))
 
+ifneq (,$(MIN_STACK_SIZE))
+SYSTEM_DEFINES += \
+	MIN_STACK_SIZE=$(shell $(NUMFMT) --from=iec $(MIN_STACK_SIZE))
+endif
+
 ifneq (,$(FLASH_SETTINGS_SIZE))
 SYSTEM_DEFINES += \
 	FLASH_SETTINGS_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SETTINGS_SIZE))
@@ -128,7 +133,8 @@ LD_FLAGS = \
 			$(ARCH_FLAGS) \
 			$(addprefix -I, $(INCLUDES)) \
 			$(addprefix -D, $(SYSTEM_DEFINES)) \
-			-L$(BUILD_DIR)
+			-L$(BUILD_DIR) \
+			$(PROJECT_LINKER_FLAGS)
 
 ###
 ## Setup
