@@ -31,15 +31,19 @@
 namespace stm32x {
 
 enum GPIO_PORT : short {
-  GPIO_PORT_A, GPIO_PORT_B, GPIO_PORT_C, GPIO_PORT_D, GPIO_PORT_E
+  GPIO_PORT_A, GPIO_PORT_B, GPIO_PORT_C, GPIO_PORT_D, GPIO_PORT_E, GPIO_PORT_F
 };
 
 enum struct GPIO_MODE : uint8_t {
   IN = 0x00, OUT = 0x01, AF = 0x02, AN = 0x03
 };
 
+// Speeds can be platform dependent
 enum struct GPIO_SPEED : uint8_t {
-  LOW = 0x00, MEDIUM = 0x01, FAST = 0x2, FASTEST = 0x03
+  LOW = model::GPIO_SPEED::LOW,
+  MEDIUM = model::GPIO_SPEED::MEDIUM,
+  FAST = model::GPIO_SPEED::FAST,
+  FASTEST = model::GPIO_SPEED::FASTEST
 };
 
 enum struct GPIO_OTYPE : uint8_t {
@@ -78,6 +82,11 @@ GPIOxREGS<GPIO_PORT_E> {
   static constexpr uint32_t REGS = GPIOE_BASE;
   static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOE;
 };
+template <> struct
+GPIOxREGS<GPIO_PORT_F> {
+  static constexpr uint32_t REGS = GPIOF_BASE;
+  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOF;
+};
 
 template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0>
 struct GPIO;
@@ -99,7 +108,6 @@ struct GPIOx : public GPIOxImpl<GPIOx<port>> {
 
   template <uint16_t pin>
   using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE>;
-
 };
 
 // GPIO pin definition

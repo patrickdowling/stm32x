@@ -27,7 +27,14 @@
 
 namespace stm32x {
 
-// TODO: Model-specific speeds? F37x seems to diverge
+namespace model {
+enum GPIO_SPEED : uint8_t {
+  LOW = 0x0,
+  MEDIUM = 0x1,
+  FAST = 0x1,
+  FASTEST = 0x3
+};
+};
 
 #if defined STM32X_F0XX || defined STM32X_F37X
 template <typename base> struct GPIOxImpl {
