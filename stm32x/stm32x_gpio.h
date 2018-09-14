@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 
@@ -88,7 +88,7 @@ GPIOxREGS<GPIO_PORT_F> {
   static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOF;
 };
 
-template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0>
+template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0, bool enable_port_clock = false>
 struct GPIO;
 
 // GPIO Port template
@@ -101,7 +101,7 @@ struct GPIOx : public GPIOxImpl<GPIOx<port>> {
   using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd>;
 
   template <uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd>
-  using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd, 0>;
+  using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd>;
 
   template <uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
   using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af>;
@@ -114,8 +114,10 @@ struct GPIOx : public GPIOxImpl<GPIOx<port>> {
 // Automatically enables peripheral clock. This leads to some duplication of
 // that code (since each pin calls the enable function), so there's some room
 // for optimzation. That said, it's not obvious how to ensure the construction
-// order in all cases to ensure an automatic central clock enable.
-template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
+// order in all cases to ensure an automatic central clock enable...
+// NOTE: For GPIOs defined through a GPIOx port, the clocks are assumed to be
+// enabled elsewhere
+template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af, bool enable_port_clock>
 struct GPIO {
   using PORT = GPIOx<port>;
 
@@ -129,26 +131,34 @@ struct GPIO {
   GPIO() { Init(); }
 
   static void Init() {
-    PORT::EnableClock(true);
+    if (enable_port_clock)
+      PORT::EnableClock(true);
     if (GPIO_MODE::AF == mode)
       PORT::Init(Mask, Source, mode, speed, otype, pupd, af);
     else
       PORT::Init(Mask, mode, speed, otype, pupd);
   }
+
+  static void ReInit(GPIO_MODE new_mode, GPIO_SPEED new_speed, GPIO_OTYPE new_otype, GPIO_PUPD new_pupd, uint8_t new_af = 0) {
+    if (GPIO_MODE::AF == new_mode)
+      PORT::Init(Mask, Source, new_mode, new_speed, new_otype, new_pupd, new_af);
+    else
+      PORT::Init(Mask, new_mode, new_speed, new_otype, new_pupd);
+  }
 };
 
 // Standalone GPIO definitions
 template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd>
-using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd>;
+using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd, 0, true>;
 
 template <GPIO_PORT port, uint16_t pin, GPIO_PUPD pupd>
-using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd>;
+using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd, 0, true>;
 
 template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
-using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af>;
+using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af, true>;
 
 template <GPIO_PORT port, uint16_t pin>
-using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE>;
+using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE, 0, true>;
 
 }; // namespace stm32x
 

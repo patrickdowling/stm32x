@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 #ifndef STM32X_CORE_H_
@@ -76,6 +76,7 @@ extern Core core;
 #define STM32X_CORE_DEFINE() namespace stm32x { stm32x::Core core; }
 #define STM32X_CORE_INIT(systick_ticks) do { stm32x::core.Init(systick_ticks); } while (0)
 #define STM32X_CORE_TICK() do { stm32x::core.Tick(); } while (0)
+#define STM32X_CORE_NOW() stm32x::core.now()
 
 #include "stm32x_model.h"
 #include "stm32x_gpio.h"
