@@ -22,54 +22,21 @@
 //
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
-#ifndef STM32X_CORE_H_
-#define STM32X_CORE_H_
-
-#include "stm32x.h"
+// -----------------------------------------------------------------------------
+// Math wrappers
+#ifndef STM32X_MATH_H_
+#define STM32X_MATH_H_
 
 namespace stm32x {
-// GPIO forward declarations
-enum GPIO_PORT : short;
-enum struct GPIO_MODE : uint8_t;
-enum struct GPIO_SPEED : uint8_t;
-enum struct GPIO_OTYPE : uint8_t;
-enum struct GPIO_PUPD : uint8_t;
 
-// Core timing and other functionality common to all platforms
-class Core {
-public:
-  DISALLOW_COPY_AND_ASSIGN(Core);
-  Core() { }
-  ~Core() { }
+static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b) __attribute__((always_inline));
+static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b)
+{
+  uint32_t out, tmp;
+  asm volatile("umull %0, %1, %2, %3" : "=r" (tmp), "=r" (out) : "r" (a), "r" (b));
+  return out;
+}
 
-  void Init(uint32_t systick_ticks);
-
-  void Tick() {
-    ++ticks_;
-  }
-
-  inline volatile uint32_t now() const {
-    return ticks_;
-  }
-
-  void Delay(uint32_t ticks) {
-    const uint32_t start = now();
-    while ((now() - start) < ticks) { }
-  }
-
-private:
-  volatile uint32_t ticks_;
-};
-
-extern Core core;
 }; // namespace stm32x
 
-#define STM32X_CORE_DEFINE() namespace stm32x { stm32x::Core core; }
-#define STM32X_CORE_INIT(systick_ticks) do { stm32x::core.Init(systick_ticks); } while (0)
-#define STM32X_CORE_TICK() do { stm32x::core.Tick(); } while (0)
-#define STM32X_CORE_NOW() stm32x::core.now()
-
-#include "stm32x_model.h"
-#include "stm32x_gpio.h"
-
-#endif // STM32X_CORE_H_
+#endif // STM32X_MATH_H_
