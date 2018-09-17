@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,23 +19,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 // -----------------------------------------------------------------------------
 //
-// Flash storage implementation
+// Flash storage implementation for page-based flash
 
-#ifndef STM32F0_FLASH_H_
-#define STM32F0_FLASH_H_
+#ifndef STM32X_PAGE_FLASH_H_
+#define STM32X_PAGE_FLASH_H_
 
-#include "stm32f0xx.h"
+// NOTE: Some variants of the F0 series might support 2K page size also
+#if defined STM32X_F0XX
+#define FLASH_PAGE_SIZE 0x400
+#elif defined STM32X_F37X
+#define FLASH_PAGE_SIZE 0x800
+#else
+#error "PAGE STORAGE NOT SUPPORTED"
+#endif
 
-namespace stm32f0 {
+#include "stm32x.h"
+
+namespace stm32x {
 
 class FlashStorage {
 public:
-  static const uint32_t PAGE_SIZE = 0x400;
+  static const uint32_t PAGE_SIZE = FLASH_PAGE_SIZE;
   static const uint32_t ALIGNMENT = 4;
   static const uint32_t BASE = 0x08000000;
 
@@ -75,6 +84,6 @@ public:
   }
 };
 
-}; // namespace stm32f0
+}; // namespace stm32x
 
-#endif // STM32F0_FLASH_H_
+#endif // STM32X_PAGE_FLASH_H_
