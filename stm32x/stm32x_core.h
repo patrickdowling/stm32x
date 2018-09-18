@@ -48,7 +48,7 @@ public:
     ++ticks_;
   }
 
-  inline volatile uint32_t now() const {
+  inline uint32_t now() const volatile {
     return ticks_;
   }
 

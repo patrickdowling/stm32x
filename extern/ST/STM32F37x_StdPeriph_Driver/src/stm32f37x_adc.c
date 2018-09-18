@@ -146,6 +146,7 @@ void ADC_DeInit(ADC_TypeDef* ADCx)
 {
   /* Check the parameters */
   assert_param(IS_ADC_ALL_PERIPH(ADCx));
+  (void)ADCx;
 
   /* Enable ADC1 reset state */
   RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1, ENABLE);
