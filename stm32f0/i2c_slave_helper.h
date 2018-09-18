@@ -100,8 +100,8 @@ public:
     return rx_buffer_;
   }
 
-  void SetState(EI2CSlaveState slave_state) {
-    slave_state_ = slave_state;
+  void SetState(EI2CSlaveState state) {
+    slave_state_ = state;
     tx_length_ = 0;
     tx_data_ = tx_buffer_;
     rx_data_ = rx_buffer_;

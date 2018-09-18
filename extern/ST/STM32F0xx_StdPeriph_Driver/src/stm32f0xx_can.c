@@ -154,6 +154,7 @@ void CAN_DeInit(CAN_TypeDef* CANx)
 {
   /* Check the parameters */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
+  (void)CANx;
  
   /* Enable CAN reset state */
   RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN, ENABLE);

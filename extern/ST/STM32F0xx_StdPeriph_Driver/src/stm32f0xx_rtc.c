@@ -1053,6 +1053,7 @@ void RTC_SetAlarm(uint32_t RTC_Format, uint32_t RTC_Alarm, RTC_AlarmTypeDef* RTC
   assert_param(IS_RTC_ALARM(RTC_Alarm));
   assert_param(IS_RTC_ALARM_MASK(RTC_AlarmStruct->RTC_AlarmMask));
   assert_param(IS_RTC_ALARM_DATE_WEEKDAY_SEL(RTC_AlarmStruct->RTC_AlarmDateWeekDaySel));
+  (void)RTC_Alarm;
 
   if (RTC_Format == RTC_Format_BIN)
   {
@@ -1184,6 +1185,7 @@ void RTC_GetAlarm(uint32_t RTC_Format, uint32_t RTC_Alarm, RTC_AlarmTypeDef* RTC
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(RTC_Format));
   assert_param(IS_RTC_ALARM(RTC_Alarm)); 
+  (void)RTC_Alarm;
 
   /* Get the RTC_ALRMAR register */
   tmpreg = (uint32_t)(RTC->ALRMAR);
@@ -1323,6 +1325,7 @@ void RTC_AlarmSubSecondConfig(uint32_t RTC_Alarm, uint32_t RTC_AlarmSubSecondVal
   assert_param(IS_RTC_ALARM(RTC_Alarm));
   assert_param(IS_RTC_ALARM_SUB_SECOND_VALUE(RTC_AlarmSubSecondValue));
   assert_param(IS_RTC_ALARM_SUB_SECOND_MASK(RTC_AlarmSubSecondMask));
+  (void)RTC_Alarm;
   
   /* Disable the write protection for RTC registers */
   RTC->WPR = 0xCA;
@@ -1349,6 +1352,7 @@ void RTC_AlarmSubSecondConfig(uint32_t RTC_Alarm, uint32_t RTC_AlarmSubSecondVal
   */
 uint32_t RTC_GetAlarmSubSecond(uint32_t RTC_Alarm)
 {
+  (void)RTC_Alarm;
   uint32_t tmpreg = 0;
   
   /* Get the RTC_ALRMAR register */
