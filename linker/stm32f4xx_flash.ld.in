@@ -3,19 +3,18 @@ Template linker script for F37x.
 Expected to be preprocessed to determine some memory sizes and a few additional
 features:
 RAM_SIZE :: Available RAM
+CCM_RAM_SIZE :: CCM RAM
 MIN_STACK_SIZE :: If defined, minimum stack size
 FLASH_SIZE :: Available flash
-FLASH_SETTINGS_SIZE :: Subtracted from FLASH_SIZE, additional memory area
 ENABLE_LIBC_INIT_ARRAY :: If defined, include C++ constructors and vtable init
+ENABLE_CCM_STACK :: Move stack into CCM
 */
 
 #ifndef MIN_STACK_SIZE
-#define MIN_STACK_SIZE 0x100
+#define MIN_STACK_SIZE 0x400
 #endif
 
 ENTRY(Reset_Handler)
-
-_estack = 0x20000000 + RAM_SIZE;
 
 _Min_Heap_Size = 0;
 _Min_Stack_Size = MIN_STACK_SIZE;
@@ -23,32 +22,32 @@ _Min_Stack_Size = MIN_STACK_SIZE;
 MEMORY
 {
   RAM (xrw)        : ORIGIN = 0x20000000, LENGTH = RAM_SIZE
-#ifdef FLASH_SETTINGS_SIZE
-  FLASH (rx)       : ORIGIN = 0x08000000, LENGTH = FLASH_SIZE - FLASH_SETTINGS_SIZE
-#else
+  CCMRAM (xrw)     : ORIGIN = 0x10000000, LENGTH = CCM_RAM_SIZE
   FLASH (rx)       : ORIGIN = 0x08000000, LENGTH = FLASH_SIZE
-#endif
 }
+
+_estack = ORIGIN(RAM) + LENGTH(RAM);
+_eccmstack = ORIGIN(CCMRAM) + LENGTH(CCMRAM);
 
 SECTIONS
 {
   .isr_vector :
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     KEEP(*(.isr_vector))            /* Startup code */
-    . = ALIGN(16);
+    . = ALIGN(4);
   } >FLASH
 
   .flashtext :
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     *(.flashtext)            /* Startup code */
-    . = ALIGN(16);
+    . = ALIGN(4);
   } >FLASH
 
   .text :
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     *(.text)                   /* remaining code */
     *(.text.*)                 /* remaining code */
     *(.rodata)                 /* read-only data (constants) */
@@ -65,46 +64,98 @@ SECTIONS
     KEEP(*(.ctors))           /* and vtable init */
     __init_array_end = .;
 #endif
-    . = ALIGN(16);
+    . = ALIGN(4);
      _etext = .;
      _sidata = _etext;
   } >FLASH
   
   .data : AT ( _sidata )
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     _sdata = . ;
     *(.ramtext*)
-    . = ALIGN(16);
+    . = ALIGN(4);
     *(.data*)
     *(.data.*)
-    . = ALIGN(16);
+    . = ALIGN(4);
      _edata = . ;
   } >RAM
 
   .bss :
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     _sbss = .;
     *(.bss)
     *(.bss*)
     *(COMMON)
-    . = ALIGN(16);
+    . = ALIGN(4);
    _ebss = . ;
   } >RAM
   
   PROVIDE ( end = _ebss );
   PROVIDE ( _end = _ebss );
-  
+
+#ifdef ENABLE_CCM_STACK
   ._user_heap_stack :
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _Min_Heap_Size;
+    . = ALIGN(4);
+  } >RAM
+#else
+  ._user_heap_stack :
+  {
+    . = ALIGN(4);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
-    . = ALIGN(16);
+    . = ALIGN(4);
   } >RAM
+#endif
+
+  /* Set up CCM memory
+   * There are mutliple regions:
+   *  ccm :: pre-loaded from flash by startup code (expected use: state)
+   *  ccmz :: filled with zeroes at startup, variables must be initialized by application
+   *  ccmstack :: application stack (optional)
+   */
+  . = _sidata + SIZEOF(.data);
+  _siccm = .;
+
+  /* CCM load area */
+  .ccm : AT(_siccm)
+  {
+    _sccm = .;
+    . = ALIGN(4);
+    *(.ccm)
+    . = ALIGN(4);
+    _eccm = .;
+  } > CCMRAM
+
+  /* CCMZ area */
+  .ccmz (NOLOAD) :
+  {
+    _sccmz = .;
+    . = ALIGN(4);
+    *(.ccmz)
+    . = ALIGN(4);
+    _eccmz = .;
+  } > CCMRAM
+
+#ifdef ENABLE_CCM_STACK
+  /* CCM stack */
+  .ccmstack (NOLOAD) :
+  {
+    _sccmstack = .;
+    *(.stack*)
+  } > CCMRAM
+
+  /* Check we didn't overflow CCM */
+  ASSERT(_sccmstack + _Min_Stack_Size <= _eccmstack, "CCM overflow")
+#endif
 
   DISCARD :
   {

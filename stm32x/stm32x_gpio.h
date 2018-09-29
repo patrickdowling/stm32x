@@ -60,32 +60,32 @@ enum struct GPIO_PUPD : uint8_t {
 template <GPIO_PORT port> struct GPIOxREGS { };
 template <> struct GPIOxREGS<GPIO_PORT_A> {
   static constexpr uint32_t REGS = GPIOA_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOA;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOA;
 };
 template <> struct
 GPIOxREGS<GPIO_PORT_B> {
   static constexpr uint32_t REGS = GPIOB_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOB;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOB;
 };
 template <> struct
 GPIOxREGS<GPIO_PORT_C> {
   static constexpr uint32_t REGS = GPIOC_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOC;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOC;
 };
 template <> struct
 GPIOxREGS<GPIO_PORT_D> {
   static constexpr uint32_t REGS = GPIOD_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOD;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOD;
 };
 template <> struct
 GPIOxREGS<GPIO_PORT_E> {
   static constexpr uint32_t REGS = GPIOE_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOE;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOE;
 };
 template <> struct
 GPIOxREGS<GPIO_PORT_F> {
   static constexpr uint32_t REGS = GPIOF_BASE;
-  static constexpr uint32_t RCC_PERIPH_MASK = RCC_AHBPeriph_GPIOF;
+  static constexpr uint32_t RCC_PERIPH_MASK = model::RCC_PERIPH_MASK_GPIOF;
 };
 
 template <GPIO_PORT port, uint16_t pin, GPIO_MODE mode, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af = 0, bool enable_port_clock = false>

@@ -80,6 +80,8 @@ ifneq (,$(findstring STM32F0,$(MODEL)))
 MODEL_INC = $(STM32X_DIR)makefile.F0xx.inc
 else ifneq (,$(findstring STM32F37,$(MODEL)))
 MODEL_INC = $(STM32X_DIR)makefile.F37x.inc
+else ifneq (,$(findstring STM32F4,$(MODEL)))
+MODEL_INC = $(STM32X_DIR)makefile.F4xx.inc
 endif
 
 ifeq (,$(MODEL_INC))
@@ -122,6 +124,11 @@ endif
 
 ifeq ($(ENABLE_LIBC_INIT_ARRAY),TRUE)
 	SYSTEM_DEFINES += ENABLE_LIBC_INIT_ARRAY
+endif
+
+ifneq (,$(HSE_VALUE))
+SYSTEM_DEFINES += \
+	HSE_VALUE=$(HSE_VALUE)
 endif
 
 PROJECT_LINKER_SCRIPT = $(BUILD_DIR)$(PROJECT).ld

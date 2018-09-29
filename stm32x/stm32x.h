@@ -31,6 +31,8 @@
 # include "stm32f0xx.h"
 #elif defined STM32X_F37X
 # include "stm32f37x.h"
+#elif defined STM32X_F4XX
+# include "stm32f4xx.h"
 #else
 #error "INVALID MODEL"
 #endif

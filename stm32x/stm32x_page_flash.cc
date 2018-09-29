@@ -25,6 +25,7 @@
 // -----------------------------------------------------------------------------
 //
 // Flash storage implementation
+#if defined STM32X_F0XX || defined STM32X_F37X
 
 #include "stm32x_page_flash.h"
 
@@ -42,3 +43,5 @@ void FlashStorage::Init(uint16_t version)
 }
 
 }; // namespace stm32x
+
+#endif

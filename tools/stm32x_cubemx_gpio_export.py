@@ -154,10 +154,16 @@ class Pin:
       type = "AN"
       s.append("GPIO_AN<%d>" % self.pin)
     else:
+      # NOTE This isn't ideal, there are multiple ways the AF are defined in
+      # the StdPeriph headers depending on model, e.g.
+      # F0/F3 -> GPIO_AF_<number>
+      # F4 -> GPIO_AF_<function> (with some GPIO_AF<n>_<function>)
+      # So the compromise seems to be to use the integer value and annotate
+      # with the function as a comment
       type = "AF"
       if numeric:
         m = re.findall(r'AF(?P<af>\d)', self.af)
-        af = "GPIO_AF_{}".format(m[0])
+        af = "{}/*{}*/".format(m[0], self.af)
       else:
         af = self.af
       s.append("GPIO_AF<%d, %s, %s, %s, %s>" % (self.pin, STM32X_SPEED[self.speed], STM32X_OTYPE[self.otype], STM32X_PULLUP[self.pullup], af))
