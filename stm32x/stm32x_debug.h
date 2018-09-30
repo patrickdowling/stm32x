@@ -84,8 +84,8 @@ public:
     value_ = 0;
   }
 
-  void Push(uint32_t value) {
-    value_ = (value_ * (kSmoothing - 1) + value) / kSmoothing;
+  void Push(uint32_t cycles) {
+    value_ = (value_ * (kSmoothing - 1) + cycles) / kSmoothing;
   }
 
 private:

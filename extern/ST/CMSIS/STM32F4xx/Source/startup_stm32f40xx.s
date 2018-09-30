@@ -73,10 +73,6 @@ defined in linker script */
   .type  Reset_Handler, %function
 Reset_Handler:  
 
-#ifdef ENABLE_CCM_STACK
-ldr sp, =_eccmstack
-#endif
-
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
@@ -93,6 +89,7 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
+
   movs  r1, #0
   b  LoopCopyCCMInit
 
@@ -110,6 +107,7 @@ LoopCopyCCMInit:
   cmp  r2, r3
   bcc  CopyCCMInit
 
+  ldr  r2, =_sbss
   b  LoopFillZerobss
 /* Zero fill the bss segment. */  
 FillZerobss:
@@ -123,6 +121,7 @@ LoopFillZerobss:
   
 /* Zero fill the cmmz segment. */
   ldr  r2, = _sccmz
+  b LoopFillZeroCCMZ
 FillZeroCCMZ:
   movs  r3, #0
   str  r3, [r2], #4
@@ -170,7 +169,13 @@ Infinite_Loop:
     
     
 g_pfnVectors:
+
+#ifdef ENABLE_CCM_STACK
+  .word  _eccmstack
+#else
   .word  _estack
+#endif
+
   .word  Reset_Handler
   .word  NMI_Handler
   .word  HardFault_Handler
