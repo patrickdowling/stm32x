@@ -52,4 +52,7 @@ struct FOURCC {
 
 #define ALWAYS_INLINE __attribute__((always_inline))
 
+#define INRAM __attribute__ ((section (".ramtext")))
+
+
 #endif // STM32X_UTIL_MACROS_H_
