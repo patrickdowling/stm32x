@@ -44,9 +44,8 @@ namespace stm32x {
 
 class FlashStorage {
 public:
-  static const uint32_t PAGE_SIZE = FLASH_PAGE_SIZE;
-  static const uint32_t ALIGNMENT = 4;
-  static const uint32_t BASE = 0x08000000;
+  static constexpr uint32_t PAGE_SIZE = FLASH_PAGE_SIZE;
+  static constexpr uint32_t ALIGNMENT = 4;
 
   static void Init(uint16_t version);
 

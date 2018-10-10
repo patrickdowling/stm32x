@@ -42,7 +42,7 @@ class RingBuffer {
 public:
   DISALLOW_COPY_AND_ASSIGN(RingBuffer);
 
-  RingBuffer() { }
+  RingBuffer() { Init(); }
 //  ~RingBuffer() { }
 
   void Init() {
