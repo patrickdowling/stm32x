@@ -68,6 +68,7 @@ SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
+# -Wconversion
 C_FLAGS    += -g -Wall -Werror -Wextra -Wshadow -fasm -finline -finline-functions-called-once -fdata-sections -ffunction-sections -fshort-enums -fno-move-loop-invariants
 CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11 -fno-use-cxa-atexit
 

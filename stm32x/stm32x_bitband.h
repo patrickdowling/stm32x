@@ -27,6 +27,7 @@
 // In theory, the compiler will reduce these ops to 2 (read) or 3 (write)
 // instructions since the addresses are known at compile-time. This seems
 // true for gcc 7.2.1 with -O >= 1 at least.
+// https://godbolt.org/z/3dAr9g
 
 #ifndef STM32X_BITBAND_H_
 #define STM32X_BITBAND_H_

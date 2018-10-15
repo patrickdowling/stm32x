@@ -40,7 +40,7 @@
 
 template <uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3>
 struct FOURCC {
-	static constexpr uint32_t value = (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
+  static constexpr uint32_t value = (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
 };
 
 #define CONCAT(x, y) _CONCAT(x, y)
