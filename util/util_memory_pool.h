@@ -44,6 +44,8 @@ public:
 
   static constexpr size_t kBufferSize = buffer_size;
 
+  // TODO aligned alloc
+
   inline uint8_t *Alloc(size_t requested_size) {
     if (used_ + requested_size > kBufferSize) {
       return nullptr;
