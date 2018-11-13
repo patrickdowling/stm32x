@@ -38,7 +38,7 @@ static constexpr uint32_t RCC_PERIPH_MASK_GPIOC = RCC_AHBPeriph_GPIOC;
 static constexpr uint32_t RCC_PERIPH_MASK_GPIOD = RCC_AHBPeriph_GPIOD;
 static constexpr uint32_t RCC_PERIPH_MASK_GPIOE = RCC_AHBPeriph_GPIOE;
 static constexpr uint32_t RCC_PERIPH_MASK_GPIOF = RCC_AHBPeriph_GPIOF;
-};
+}
 
 template <typename base> struct GPIOxImpl {
   static inline void Set(uint16_t mask) ALWAYS_INLINE {
