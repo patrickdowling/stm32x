@@ -72,6 +72,6 @@ private:
   uint8_t state_;
 };
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_SWITCH_H_

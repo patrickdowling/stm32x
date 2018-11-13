@@ -37,6 +37,6 @@ static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b)
   return out;
 }
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_MATH_H_

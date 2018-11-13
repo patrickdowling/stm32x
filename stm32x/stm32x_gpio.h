@@ -160,6 +160,6 @@ using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af, true>;
 template <GPIO_PORT port, uint16_t pin>
 using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE, 0, true>;
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_GPIO_H_

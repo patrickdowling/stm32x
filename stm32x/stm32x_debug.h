@@ -107,7 +107,7 @@ private:
   CycleMeasurement cycles_;
 };
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif
 #endif // STM32X_DEBUG_H_

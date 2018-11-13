@@ -45,6 +45,6 @@ protected:
   int32_t min_, max_;
 };
 
-}; // namespace util
+} // namespace util
 
 #endif // STM32X_UTIL_RANGE_SCALER_H_

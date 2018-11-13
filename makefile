@@ -68,9 +68,25 @@ SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
-# -Wconversion
-C_FLAGS    += -g -Wall -Werror -Wextra -Wshadow -fasm -finline -finline-functions-called-once -fdata-sections -ffunction-sections -fshort-enums -fno-move-loop-invariants
-CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11 -fno-use-cxa-atexit
+C_FLAGS    += -g -Wall -Werror -Wextra -Wshadow \
+	-fasm \
+	-finline \
+	-finline-functions-called-once \
+	-fdata-sections -ffunction-sections \
+	-fshort-enums \
+	-fno-move-loop-invariants \
+	-Wlogical-op \
+	-Wduplicated-branches \
+	-Wduplicated-cond
+
+CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11 -fno-use-cxa-atexit \
+	-Wpedantic \
+	-Wnon-virtual-dtor \
+	-Woverloaded-virtual
+
+# -Wdouble-promotion -> printf
+# -Wconversion -> OMGWTFBBQ
+# -Wold-style-cast -> StdPeriphLib :(
 
 ARCH_FLAGS += -mthumb -mthumb-interwork -funroll-loops -specs=nano.specs -specs=nosys.specs
 

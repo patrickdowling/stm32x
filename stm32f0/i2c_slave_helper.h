@@ -139,6 +139,6 @@ private:
   bool rx_overflow_;
 };
 
-}; // namespace i2c
+} // namespace i2c
 
 #endif // STM32X_I2C_SLAVE_HELPER_H_

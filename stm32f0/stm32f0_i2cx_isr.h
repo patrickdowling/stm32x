@@ -70,6 +70,6 @@ public:
   const uint32_t ISR;
 };
 
-}; // namespace stm32f0
+} // namespace stm32f0
 
 #endif // STM32F0_I2CX_ISR_H_

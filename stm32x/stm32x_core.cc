@@ -33,4 +33,4 @@ void Core::Init(uint32_t systick_ticks)
   SysTick_Config(systick_ticks); 
 }
 
-}; // namespace stm32x
+} // namespace stm32x

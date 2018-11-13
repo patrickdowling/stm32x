@@ -92,6 +92,6 @@ private:
   volatile size_t read_ptr_;
 };
 
-}; // namespace util
+} // namespace util
 
 #endif // STM32X_UTIL_RINGBUFFER_H_

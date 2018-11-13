@@ -34,21 +34,21 @@ namespace util {
 template <size_t length>
 class TraceBuffer {
 public:
-	static const size_t kBufferSize = length;
+  static const size_t kBufferSize = length;
 
-	TraceBuffer() : current_pos_(0) { }
+  TraceBuffer() : current_pos_(0) { }
 
-	void Push(char c) {
-		size_t pos = current_pos_;
-		buffer_[pos++] = c;
-		current_pos_ = pos & (kBufferSize- 1);
-	}
+  void Push(char c) {
+    size_t pos = current_pos_;
+    buffer_[pos++] = c;
+    current_pos_ = pos & (kBufferSize- 1);
+  }
 
 private:
-	size_t current_pos_;
-	char buffer_[kBufferSize];
+  size_t current_pos_;
+  char buffer_[kBufferSize];
 };
 
-}; // namespace util
+} // namespace util
 
 #endif // STM32X_UTIL_TRACEBUFFER_H_

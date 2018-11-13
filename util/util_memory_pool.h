@@ -78,6 +78,6 @@ private:
   std::array<uint8_t, kBufferSize> buffer_;
 };
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_UTIL_MEMORY_POOL_H_

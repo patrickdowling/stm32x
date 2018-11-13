@@ -92,6 +92,6 @@ inline constexpr bit map_peripheral_mask(__IO void *base, uint32_t mask) {
 }
 
 };
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_BITBAND_H_

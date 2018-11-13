@@ -83,6 +83,6 @@ public:
   }
 };
 
-}; // namespace stm32x
+} // namespace stm32x
 
 #endif // STM32X_PAGE_FLASH_H_

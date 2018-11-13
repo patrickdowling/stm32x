@@ -200,6 +200,6 @@ private:
   }
 };
 
-}; // namespace util
+} // namespace util
 
 #endif // STM32X_UTIL_STORAGE_H_

@@ -62,7 +62,7 @@ private:
 };
 
 extern Core core;
-}; // namespace stm32x
+} // namespace stm32x
 
 #define STM32X_CORE_DEFINE() namespace stm32x { stm32x::Core core; }
 #define STM32X_CORE_INIT(systick_ticks) do { stm32x::core.Init(systick_ticks); } while (0)
