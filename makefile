@@ -222,7 +222,7 @@ $(SIZEFILE): $(ELFFILE)
 
 $(DISFILE): $(ELFFILE)
 	$(ECHO) "DIS $@..."
-	$(Q)$(OBJDUMP) -d -h -S $< > $@
+	$(Q)$(OBJDUMP) -dC -h -S $< > $@
 
 ###
 ## Targets
