@@ -221,7 +221,7 @@ class ResourceLibrary(object):
     f.write('namespace %s {\n\n' % self.namespace);
 
   def _close_namespace(self, f):
-    f.write('}; // namespace %s\n' % self.namespace);
+    f.write('} // namespace %s\n' % self.namespace);
 
   def generate_h(self, root_path):
     f = file(root_path + '.h', 'wb')
