@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 #
 # First attempt to parser the Stm32CubeMX .ioc/.csv files and generate a
 # set of GPIO constructs that automatically initialize themselves, as well
@@ -10,12 +10,12 @@
 #   Note: These will need initializers in the GPIO constructor
 
 import os, re, csv, argparse
+import datetime
 from operator import itemgetter
 import xml.etree.ElementTree as ET
-from sets import Set
 
 STM32CUBEMX_PATH = "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources"
-HEADER = """// Copyright 2018 Patrick Dowling
+HEADER = """// Copyright %4d Patrick Dowling
 //
 // Author: Patrick Dowling (pld@gurkenkiste.com)
 //
@@ -25,10 +25,10 @@ HEADER = """// Copyright 2018 Patrick Dowling
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,13 +36,13 @@ HEADER = """// Copyright 2018 Patrick Dowling
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 // -----------------------------------------------------------------------------
 //
 // AUTOMATICALLY GENERATED FILE, DO NOT EDIT
-//
+// clang-format off
 """
 
 STM32X_PULLUP = {
@@ -108,7 +108,7 @@ class Pin:
     elif 'GPIO_ModeDefaultOutputPP' == key:
       self.otype = value
     else:
-      print "Skipping property {key}={value}".format(**locals())
+      print("Skipping property {key}={value}".format(**locals()))
 
   def __repr__(self):
     return "{name} label={label} signal={signal} mode={mode} pullup={pullup}".format(**self.__dict__)
@@ -173,7 +173,7 @@ class Pin:
     else:
       s.append(" %s" % self.signal)
 
-    print "{} {} {} {}".format(self.name, type, self.signal, self.label)
+    print("{} {} {} {}".format(self.name, type, self.signal, self.label))
     return "".join(s)
 
   def define(self):
@@ -190,7 +190,7 @@ class PinoutParser:
     self.csv_file = ""
 
   def read_ioc(self, filename):
-    print "Reading IOC definitions from '%s'..." % filename
+    print("Reading IOC definitions from '%s'..." % filename)
     self.ioc_file = filename
     ioc_pin_attributes = {}
     with open(filename, "r") as lines:
@@ -221,13 +221,13 @@ class PinoutParser:
           continue
    
     self.ioc_pin_attributes = ioc_pin_attributes
-    print "Done."
-    print "%02d pins found" % len(self.ioc_pin_attributes)
+    print("Done.")
+    print("%02d pins found" % len(self.ioc_pin_attributes))
 
   # Reading the CSV file is optional, but it seems to provide nicer names for
   # some of the pins (DAC1_OUT1 vs. COMP_DAC11_group)
   def read_csv(self, filename):
-    print "Reading CSV definitions from '%s'..." % filename
+    print("Reading CSV definitions from '%s'..." % filename)
     self.csv_file = filename
     with open(filename, 'r') as csvfile:
       reader = csv.reader(csvfile, delimiter=',', quotechar='"')
@@ -237,18 +237,18 @@ class PinoutParser:
         if "I/O" == pintype and name in self.ioc_pin_attributes:
           pin = self.ioc_pin_attributes[name]
           if signal != pin.signal:
-            if self.verbose: print "{:>4}: Update signal name to {} (was {})".format(name, signal, pin.signal)
+            if self.verbose: print("{:>4}: Update signal name to {} (was {})".format(name, signal, pin.signal))
             pin.update('Signal', signal)
 
   def parse_xml_ns(self, path):
-    if self.verbose: print path
+    if self.verbose: print(path)
     root = ET.parse(path).getroot()
     ns = re.match(r'\{.*\}', root.tag)
     return root, ns.group(0) if ns else ''
 
   def read_gpio_db(self):
     mcu_db_path = os.path.join(STM32CUBEMX_PATH, "db/mcu", self.mcu_name + ".xml")
-    print "Reading MCU DB for '%s'..." % self.mcu_name
+    print("Reading MCU DB for '%s'..." % self.mcu_name)
     root, ns = self.parse_xml_ns(mcu_db_path)
     gpio_ip = root.findall(".//%s%s" % (ns, "IP[@Name='GPIO']"))
     if len(gpio_ip) < 1:
@@ -256,7 +256,7 @@ class PinoutParser:
 
     version = gpio_ip[0].attrib['Version']
     gpio_mode_db_path = os.path.join(STM32CUBEMX_PATH, "db/mcu/IP/", ("GPIO-%s_Modes.xml" % version))
-    print "Reading GPIO modes version '%s'..." % version
+    print("Reading GPIO modes version '%s'..." % version)
     self.gpio_root, self.gpio_ns = self.parse_xml_ns(gpio_mode_db_path)
 
   def gpio_db_find_pin_af(self, pin):
@@ -274,17 +274,17 @@ class PinoutParser:
 
   def export_h(self, basename, numeric, ns):
     h = basename + '.h'
-    print "Exporting header file {}".format(h)
+    print("Exporting header file {}".format(h))
     self.warnings = []
     self.unused = []
     self.exported = 0
 
     pin_declarations = []
-    used_ports = Set()
+    used_ports = set()
     for pin_name in sorted(self.ioc_pin_attributes, key=natural_key):
       pin = self.ioc_pin_attributes[pin_name]
       if pin.ignored():
-        print "%s ignored (%s)" % (pin.name, pin.signal)
+        print("%s ignored (%s)" % (pin.name, pin.signal))
         continue
       if not pin.validate():
         self.warnings.append(pin_name)
@@ -295,8 +295,8 @@ class PinoutParser:
       used_ports.add(pin.port)
 
     header_guard = "%s_GPIO_H_" % ns.upper()
-    f = file(h, 'wb')
-    f.write(HEADER)
+    f = open(h, 'w')
+    f.write(HEADER % datetime.datetime.now().year)
     f.write("// IOC source: {}\n".format(self.ioc_file))
     if self.csv_file: f.write("// CSV source: {}\n".format(self.csv_file))
     f.write("// " + ("-" * 80) + "\n")
@@ -307,7 +307,7 @@ class PinoutParser:
     f.write("class GPIO {\n")
     f.write("  struct GPIO_PORT_INIT {\n")
     f.write("    GPIO_PORT_INIT() {\n")
-    for port in used_ports:
+    for port in sorted(used_ports):
       f.write("      stm32x::GPIOx<stm32x::GPIO_PORT_{0}>::EnableClock(true);\n".format(port))
     f.write("    }\n")
     f.write("  };\n")
@@ -321,17 +321,17 @@ class PinoutParser:
 
     f.write("}; // class GPIO\n\n")
     f.write("extern GPIO gpio;\n")
-    if ns: f.write("}}; // namespace {}\n".format(ns))
+    if ns: f.write("}} // namespace {}\n".format(ns))
     f.write("#endif // {}\n".format(header_guard))
 
-    print '-' * 80
-    print " %2d exported" % self.exported
-    if len(self.unused): print " %2d unused  : %s" % (len(self.unused), ", ".join(self.unused))
-    if len(self.warnings): print " %2d warnings: %s" % (len(self.warnings), ", ".join(self.warnings))
+    print('-' * 80)
+    print(" %2d exported" % self.exported)
+    if len(self.unused): print(" %2d unused  : %s" % (len(self.unused), ", ".join(self.unused)))
+    if len(self.warnings): print(" %2d warnings: %s" % (len(self.warnings), ", ".join(self.warnings)))
 
   def export_cc(self, basename, numeric, ns):
     cc = basename + '.cc'
-    print "Exporting cc file (may be empty){}".format(cc)
+    print("Exporting cc file (may be empty){}".format(cc))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
@@ -354,7 +354,7 @@ if __name__ == "__main__":
       csv_file = f
 
   if not ioc_file:
-    print "error: No IOC file specified"
+    print("error: No IOC file specified")
     exit(-1)
 
   basename = os.path.splitext(args.output)[0]
@@ -366,10 +366,10 @@ if __name__ == "__main__":
   parser.read_gpio_db()
 
   if args.verbose:
-    print '-' * 80
-    print "PACKAGE: %s" % parser.mcu_package
-    print "FAMILY : %s (%s)" % (parser.mcu_family, parser.mcu_name)
-    print '-' * 80
+    print('-' * 80)
+    print("PACKAGE: %s" % parser.mcu_package)
+    print("FAMILY : %s (%s)" % (parser.mcu_family, parser.mcu_name))
+    print('-' * 80)
 
   parser.export_h(basename, args.numeric, args.namespace)
 #  parser.export_cc(basename, args.numeric, args.namespace)
