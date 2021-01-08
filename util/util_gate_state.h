@@ -22,38 +22,32 @@
 //
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
-#ifndef STM32X_UTIL_CLOCKS_H_
-#define STM32X_UTIL_CLOCKS_H_
-
-#include <stdint.h>
+#ifndef STM32X_UTIL_GATE_STATE_H_
+#define STM32X_UTIL_GATE_STATE_H_
 
 namespace stm32x {
 
-template <uint32_t sub_ticks>
-class FixedClockDivider {
-public:
-  FixedClockDivider() : sub_ticks_(0) {}
-  ~FixedClockDivider() {}
+struct GateState {
+  enum State : uint8_t { LOW = 0x0, RISING = 0x1, RAISED = 0x2, FALLING = 0x4 };
 
-  bool Tick()
+  void Update(bool state)
   {
-    uint32_t t = sub_ticks_;
-    sub_ticks_ = t ? t - 1 : sub_ticks - 1;
-    return 0 == t;
+    if (state_ & RAISED) {
+      state_ = state ? RAISED : FALLING;
+    } else {
+      state_ = state ? (RISING | RAISED) : LOW;
+    }
   }
 
-private:
-  uint32_t sub_ticks_;
-};
+  inline bool raised() const { return state_ & RAISED; }
 
-template <>
-class FixedClockDivider<1> {
-public:
-  FixedClockDivider() {}
-  ~FixedClockDivider() {}
-  bool Tick() { return true; }
+  inline bool rising() const { return state_ & RAISED; }
+
+  inline bool falling() const { return state_ & FALLING; }
+
+  uint8_t state_;
 };
 
 }  // namespace stm32x
 
-#endif  // STM32X_UTIL_CLOCKS_H_
+#endif  // STM32X_UTIL_GATE_STATE_H_

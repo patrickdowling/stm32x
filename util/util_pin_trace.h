@@ -39,6 +39,6 @@ public:
   }
 };
 
-};
+}
 
 #endif // STM32X_UTIL_PIN_TRACE_
