@@ -59,6 +59,9 @@ FLASH_TARGET ?= flash_bmp
 STM32X_DIR = stm32x/
 SCRIPT_DIR = $(STM32X_DIR)scripts/
 
+STM32X_CPPSTD ?= c++11
+STM32X_CSTD   ?= c11
+
 PROJECT_SRC_DIRS += $(PROJECT_RESOURCE_DIR)
 PROJECT_RESOURCE_FILE = $(PROJECT_RESOURCE_SCRIPT:.py=.cc)
 
@@ -68,21 +71,22 @@ SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
-C_FLAGS    += -g -Wall -Werror -Wextra -Wshadow \
-	-fasm \
-	-finline \
-	-finline-functions-called-once \
-	-fdata-sections -ffunction-sections \
-	-fshort-enums \
-	-fno-move-loop-invariants \
-	-Wlogical-op \
-	-Wduplicated-branches \
-	-Wduplicated-cond
+C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
+	   -fasm \
+	   -finline \
+	   -finline-functions-called-once \
+	   -fdata-sections -ffunction-sections \
+	   -fshort-enums \
+	   -fno-move-loop-invariants \
+	   -Wlogical-op \
+	   -Wduplicated-branches \
+	   -Wduplicated-cond
 
-CPP_FLAGS  += -fno-exceptions -fno-rtti -std=c++11 -fno-use-cxa-atexit \
-	-Wpedantic \
-	-Wnon-virtual-dtor \
-	-Woverloaded-virtual
+CPP_FLAGS += -fno-exceptions \
+	     -fno-rtti -fno-use-cxa-atexit \
+	     -Wpedantic \
+	     -Wnon-virtual-dtor \
+	     -Woverloaded-virtual
 
 # -Wdouble-promotion -> printf
 # -Wconversion -> OMGWTFBBQ
@@ -207,11 +211,11 @@ C_FLAGS += -MMD -MP # dependency generation
 
 $(BUILD_DIR)%.o: %.c
 	$(ECHO) "C $<..."
-	$(Q)$(CC) -c $(C_FLAGS) $< -o $@
+	$(Q)$(CC) -c -std=$(STM32X_CSTD) $(C_FLAGS) $< -o $@
 
 $(BUILD_DIR)%.o: %.cc
 	$(ECHO) "CC $<..."
-	$(Q)$(CXX) -c $(C_FLAGS) $(CPP_FLAGS) $< -o $@
+	$(Q)$(CXX) -c -std=$(STM32X_CPPSTD) $(C_FLAGS) $(CPP_FLAGS) $< -o $@
 
 $(BUILD_DIR)%.o: %.s
 	$(ECHO) "AS $<..."
