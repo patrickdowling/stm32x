@@ -104,11 +104,14 @@ MODEL_INC = $(STM32X_DIR)makefile.F37x.inc
 else ifneq (,$(findstring STM32F4,$(MODEL)))
 MODEL_INC = $(STM32X_DIR)makefile.F4xx.inc
 endif
-
 ifeq (,$(MODEL_INC))
 MODEL_INC = $(error Undefined model '$(MODEL)')
 endif
+
+STM32X_EXTERN_DIR = $(STM32X_DIR)extern/
+STM32X_CMSIS_DIR = $(STM32X_EXTERN_DIR)CMSIS
 ST_DIR = $(STM32X_DIR)extern/ST/
+
 include $(MODEL_INC)
 
 ###
@@ -116,6 +119,8 @@ include $(MODEL_INC)
 #
 INCLUDES += $(PROJECT_INCLUDE_DIRS)
 INCLUDES += $(STM32X_DIR)
+INCLUDES += $(STM32X_CMSIS_DIR)/Core/Include
+INCLUDES += $(STM32X_CMSIS_DIR)/DSP/Include
 
 C_FILES   += $(notdir $(wildcard $(patsubst %,%/*.c,$(PROJECT_SRC_DIRS))))
 CC_FILES  += $(notdir $(wildcard $(patsubst %,%/*.cc,$(PROJECT_SRC_DIRS))))

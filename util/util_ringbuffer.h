@@ -40,14 +40,8 @@ namespace util {
 template <typename T, size_t size>
 class RingBuffer {
 public:
+  RingBuffer() = default;
   DISALLOW_COPY_AND_ASSIGN(RingBuffer);
-
-  RingBuffer() { Init(); }
-//  ~RingBuffer() { }
-
-  void Init() {
-    write_ptr_ = read_ptr_ = 0;
-  }
 
   inline size_t readable() const {
     return write_ptr_ - read_ptr_;
@@ -88,8 +82,8 @@ public:
 private:
 
   T buffer_[size];
-  volatile size_t write_ptr_;
-  volatile size_t read_ptr_;
+  volatile size_t write_ptr_ = 0;
+  volatile size_t read_ptr_ = 0;
 };
 
 } // namespace util

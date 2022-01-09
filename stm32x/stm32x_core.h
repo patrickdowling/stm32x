@@ -38,9 +38,8 @@ enum struct GPIO_PUPD : uint8_t;
 // Core timing and other functionality common to all platforms
 class Core {
 public:
+  Core() = default;
   DISALLOW_COPY_AND_ASSIGN(Core);
-  Core() { }
-  ~Core() { }
 
   void Init(uint32_t systick_ticks);
 
@@ -58,7 +57,7 @@ public:
   }
 
 private:
-  volatile uint32_t ticks_;
+  volatile uint32_t ticks_ = 0;
 };
 
 extern Core core;

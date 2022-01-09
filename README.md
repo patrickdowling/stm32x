@@ -17,10 +17,20 @@
 
 ## Quo Vadis
 - More templates, fewer macros.
-- Update to c++14/17
+- Update to c++14/17 (\*)
 - Formalize GPIO (and possibly peripheral) export into the base project.
 - Externalize the directories for specific families to separate repos?
+- Support for different models within the families is sketchy at best (\*)
 - Better support for other debugger/upload options than the Black Magic Probe; openocd was used in some projects but hasn't made it to main makefile yet.
+
+(\*)
+The default C++ version is c++11. Using the `STM32X_CPPSTD` variable this can be changed.
+- Difficutly: this means that at least a newer version of CMSIS is required since the `register` keyword is deprecated.
+- As a somewhat temporary solution CMSIS is now being used directly and _not_ the ST packaged version.
+
+(\*\*)
+- In general it seems useful to use the ST `STM32CubeF0` et al. repositories...
+- ...the but there is that the model #defines have changed so mixing newer ST with StdPeriphLib seems dangerous.
 
 ## Stuff
 - Obviously inspired by [stmlib](https://github.com/pichenettes/stmlib)!
