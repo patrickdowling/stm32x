@@ -71,6 +71,8 @@ SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
+MAX_FRAME_SIZE ?= 128
+
 C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
 	   -fasm \
 	   -finline \
@@ -80,7 +82,9 @@ C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
 	   -fno-move-loop-invariants \
 	   -Wlogical-op \
 	   -Wduplicated-branches \
-	   -Wduplicated-cond
+	   -Wduplicated-cond \
+	   -Wframe-larger-than=$(MAX_FRAME_SIZE) \
+	   -Wdouble-promotion
 
 CPP_FLAGS += -fno-exceptions \
 	     -fno-rtti -fno-use-cxa-atexit \
