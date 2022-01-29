@@ -61,9 +61,9 @@ class ArrayResource(object):
     num_values = len(self._values)
     if num_values > self._values_per_line:
       f.write('\n')
-      for i in xrange(0, num_values, self._values_per_line):
+      for i in range(0, num_values, self._values_per_line):
         f.write('  ');
-        f.write(', '.join(self._formatter(self._values[j]) for j in xrange(i, min(num_values, i + self._values_per_line))))
+        f.write(', '.join(self._formatter(self._values[j]) for j in range(i, min(num_values, i + self._values_per_line))))
         f.write(',\n')
     else:
       f.write(' ')
@@ -224,7 +224,7 @@ class ResourceLibrary(object):
     f.write('} // namespace %s\n' % self.namespace);
 
   def generate_h(self, root_path):
-    f = file(root_path + '.h', 'wb')
+    f = open(root_path + '.h', 'w')
     if self.header: f.write(self.header + '\n')
     f.write('#ifndef %s\n' % self.header_guard)
     f.write('#define %s\n' % self.header_guard)
@@ -242,7 +242,7 @@ class ResourceLibrary(object):
     f.close()
 
   def generate_cc(self, root_path):
-    f = file(root_path + '.cc', 'wb')
+    f = open(root_path + '.cc', 'w')
     if self.header: f.write(self.header + '\n')
     f.write('#include "%s.h"\n\n' % self.namespace)
     self._open_namespace(f)

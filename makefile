@@ -196,7 +196,11 @@ SIZE			= $(ARCH_PATH)-size
 NM				= $(ARCH_PATH)-nm
 RM				= rm -f
 MKDIR			= mkdir -p
-NUMFMT    = gnumfmt
+NUMFMT	:= $(shell command -v numfmt 2> /dev/null)
+ifeq (,$(NUMFMT))
+	NUMFMT  := gnumfmt
+endif
+
 
 ###
 ## Objects & build rules
@@ -285,7 +289,7 @@ resources: $(PROJECT_RESOURCE_FILE)
 
 $(PROJECT_RESOURCE_SCRIPT:.py=.cc): $(PROJECT_RESOURCE_SCRIPT) $(RESOURCE_PY_FILES)
 	$(ECHO) "PY $^"
-	$(Q)PYTHONPATH="$(STM32X_DIR)" python $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
+	$(Q)PYTHONPATH="$(STM32X_DIR)" python3 $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
 
 -include $(DEPS)
 

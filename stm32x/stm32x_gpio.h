@@ -145,6 +145,8 @@ struct GPIO {
     else
       PORT::Init(Mask, new_mode, new_speed, new_otype, new_pupd);
   }
+
+  GPIO &operator = (bool set) { if (set) Set(); else Reset(); return *this; }
 };
 
 // Standalone GPIO definitions
