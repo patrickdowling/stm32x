@@ -14,7 +14,6 @@ import datetime
 from operator import itemgetter
 import xml.etree.ElementTree as ET
 
-STM32CUBEMX_PATH = "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources"
 HEADER = """// Copyright %4d Patrick Dowling
 //
 // Author: Patrick Dowling (pld@gurkenkiste.com)
@@ -246,8 +245,8 @@ class PinoutParser:
     ns = re.match(r'\{.*\}', root.tag)
     return root, ns.group(0) if ns else ''
 
-  def read_gpio_db(self):
-    mcu_db_path = os.path.join(STM32CUBEMX_PATH, "db/mcu", self.mcu_name + ".xml")
+  def read_gpio_db(self, cubemx):
+    mcu_db_path = os.path.join(cubemx, "db/mcu", self.mcu_name + ".xml")
     print("Reading MCU DB for '%s'..." % self.mcu_name)
     root, ns = self.parse_xml_ns(mcu_db_path)
     gpio_ip = root.findall(".//%s%s" % (ns, "IP[@Name='GPIO']"))
@@ -255,7 +254,7 @@ class PinoutParser:
       raise RuntimeError("ERROR: Unable to find GPIO IP in MCU XML file...")
 
     version = gpio_ip[0].attrib['Version']
-    gpio_mode_db_path = os.path.join(STM32CUBEMX_PATH, "db/mcu/IP/", ("GPIO-%s_Modes.xml" % version))
+    gpio_mode_db_path = os.path.join(cubemx, "db/mcu/IP/", ("GPIO-%s_Modes.xml" % version))
     print("Reading GPIO modes version '%s'..." % version)
     self.gpio_root, self.gpio_ns = self.parse_xml_ns(gpio_mode_db_path)
 
@@ -313,9 +312,8 @@ class PinoutParser:
     f.write("  };\n")
     f.write("  GPIO_PORT_INIT port_initializer_;\n\n")
     f.write("public:\n")
+    f.write("  GPIO() = default;\n")
     f.write("  DISALLOW_COPY_AND_ASSIGN(GPIO);\n")
-    f.write("  GPIO() { };\n")
-    f.write("  ~GPIO() { };\n\n")
     for pin in pin_declarations:
       f.write("  {};\n".format(pin))
 
@@ -363,7 +361,7 @@ if __name__ == "__main__":
   parser.read_ioc(ioc_file)
   if csv_file:
     parser.read_csv(csv_file)
-  parser.read_gpio_db()
+  parser.read_gpio_db(args.cubemx)
 
   if args.verbose:
     print('-' * 80)
