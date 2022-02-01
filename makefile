@@ -274,8 +274,9 @@ hex: $(HEXFILE)
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) $(DEPS)
+	@$(RM) $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d
 	@$(RM) $(ELFFILE) $(BINFILE) $(HEXFILE) $(MAPFILE) $(PROJECT_LINKER_SCRIPT) $(SIZEFILE)
+	@$(RM) $(PINOUT_SCRIPT) $(BUILD_DIR)/*.log
 
 .PHONY: size
 size: $(SIZEFILE)
@@ -292,6 +293,36 @@ $(PROJECT_RESOURCE_SCRIPT:.py=.cc): $(PROJECT_RESOURCE_SCRIPT) $(RESOURCE_PY_FIL
 	$(Q)PYTHONPATH="$(STM32X_DIR)" python3 $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
 
 -include $(DEPS)
+
+###
+## GPIO export (still super experimental)
+#
+PROJECT_CSV_FILE = $(PROJECT_IOC_FILE:.ioc=.csv)
+PINOUT_SCRIPT = $(BUILD_DIR)$(PROJECT).scr
+
+ifeq "$(shell uname)" "Linux"
+CUBEMX_ROOT ?= $(shell realpath ~)/STM32CubeMX
+CUBEMX_EXE = $(CUBEMX_ROOT)/STM32CubeMX
+CUBEMX = $(CUBEMX_ROOT)
+else
+CUBEMX_ROOT ?= /Applications/STMicroelectronics/STM32CubeMX.app
+CUBEMX_EXE = $(CUBEMX_ROOT)/Contents/MacOs/STM32CubeMX
+CUBEMX = $(CUBEMX_ROOT)/Contents/Resources
+endif
+
+$(PINOUT_SCRIPT): $(BUILD_DIR) $(PROJECT_IOC_FILE)
+	$(ECHO) "Building CubeMX script $@"
+	@echo "config load $(shell realpath $(PROJECT_IOC_FILE))" > $@
+	@echo "csv pinout $(shell realpath $(PROJECT_CSV_FILE))" >> $@
+	@echo "exit" >> $@
+
+.PHONY: pinout
+pinout: $(PINOUT_SCRIPT)
+	$(CUBEMX_EXE) -s $(shell realpath $(PINOUT_SCRIPT)) > $(BUILD_DIR)cubemx.log
+	python3 $(STM32X_DIR)tools/stm32x_cubemx_gpio_export.py $(PROJECT_IOC_FILE) $(PROJECT_CSV_FILE) \
+		--namespace $(PROJECT) --numeric \
+		--cubemx $(CUBEMX) \
+		-o ./drivers/gpio
 
 ###
 ## Flash/programming
@@ -315,12 +346,12 @@ endif
 .PHONY: flash_bmp
 flash_bmp: $(ELFFILE)
 	$(Q)$(GDB) -nx -batch \
-						-ex 'target extended-remote $(BMP_PORT)' \
-						-x $(SCRIPT_DIR)bmp_flash_swd.scr \
-						$(ELFFILE)
+		-ex 'target extended-remote $(BMP_PORT)' \
+		-x $(SCRIPT_DIR)bmp_flash_swd.scr \
+		$(ELFFILE)
 
 .PHONY: debug_bmp
 debug_bmp: $(ELFFILE)
 	$(Q)$(GDB) -ex 'target extended-remote $(BMP_PORT)' \
-						-x $(SCRIPT_DIR)bmp_gdb_swd.scr \
-						$(ELFFILE)
+		-x $(SCRIPT_DIR)bmp_gdb_swd.scr \
+		$(ELFFILE)
