@@ -3,7 +3,6 @@
 # First attempt to parser the Stm32CubeMX .ioc/.csv files and generate a
 # set of GPIO constructs that automatically initialize themselves, as well
 # as the required GPIO ports.
-#
 # Extensions might include
 # - exclude/ignore patterns
 # - generate typedefed/using pins instead of member variables
@@ -62,6 +61,19 @@ STM32X_OTYPE = {
   'GPIO_MODE_OUTPUT_OD' : 'stm32x::GPIO_OTYPE::OD'
 }
 
+GPIO_FORMATTERS = {
+    'GPIO_IN' : 'stm32x::GPIOx<stm32x::GPIO_PORT_%(port)s>::GPIO_IN<%(pin)d, %(pullup)s> %(label)s',
+    'GPIO_OUT' : 'stm32x::GPIOx<stm32x::GPIO_PORT_%(port)s>::GPIO_OUT<%(pin)d, %(speed)s, %(otype)s, %(pullup)s> %(label)s',
+    'GPIO_AN' : 'stm32x::GPIOx<stm32x::GPIO_PORT_%(port)s>::GPIO_OUT<%(pin)d> %(label)s',
+    'GPIO_AF' : 'stm32x::GPIOx<stm32x::GPIO_PORT_%(port)s>::GPIO_AF<%(pin)d, %(speed)s, %(otype)s, %(pullup)s, %(af)s> %(label)s'
+}
+
+GPIO_TYPEDEF_FORMATTERS = {
+    'GPIO_IN' : 'using %(label)s = stm32x::GPIO_IN<stm32x::GPIO_PORT_%(port)s, %(pin)d, %(pullup)s, false>',
+    'GPIO_OUT' : 'using %(label)s = stm32x::GPIO_OUT<stm32x::GPIO_PORT_%(port)s, %(pin)d, %(speed)s, %(otype)s, %(pullup)s, false>',
+    'GPIO_AN' : 'using %(label)s = stm32x::GPIO_AN<stm32x::GPIO_PORT_%(port)s, %(pin)d, false>',
+    'GPIO_AF' : 'using %(label)s = stm32x::GPIO_AF<stm32x::GPIO_PORT_%(port)s, %(pin)d, %(speed)s, %(otype)s, %(pullup)s, %(af)s, false>'
+}
 # Return a tuple of (port, pin_number)
 def parse_pin_name(name):
   m = re.match(r'P(?P<port>[A-Z])(?P<pin>\d+)', name)
@@ -141,45 +153,46 @@ class Pin:
   def is_af(self):
     return not self.is_input() and not self.is_output() and not self.is_analog()
 
-  def declare(self, numeric):
-    s = ["stm32x::GPIOx<stm32x::GPIO_PORT_%s>::" % self.port]
-    if self.is_input():
-      type = "IN"
-      s.append("GPIO_IN<%d, %s>" % (self.pin, STM32X_PULLUP[self.pullup]))
-    elif self.is_output():
-      type = "OUT"
-      s.append("GPIO_OUT<%d, %s, %s, %s>" % (self.pin, STM32X_SPEED[self.speed], STM32X_OTYPE[self.otype], STM32X_PULLUP[self.pullup]))
-    elif self.is_analog():
-      type = "AN"
-      s.append("GPIO_AN<%d>" % self.pin)
-    else:
-      # NOTE This isn't ideal, there are multiple ways the AF are defined in
-      # the StdPeriph headers depending on model, e.g.
-      # F0/F3 -> GPIO_AF_<number>
-      # F4 -> GPIO_AF_<function> (with some GPIO_AF<n>_<function>)
-      # So the compromise seems to be to use the integer value and annotate
-      # with the function as a comment
-      type = "AF"
-      if numeric:
-        m = re.findall(r'AF(?P<af>\d)', self.af)
-        af = "{}/*{}*/".format(m[0], self.af)
+  def build_gpio(self, numeric):
+      if self.label:
+        label = self.label
       else:
-        af = self.af
-      s.append("GPIO_AF<%d, %s, %s, %s, %s>" % (self.pin, STM32X_SPEED[self.speed], STM32X_OTYPE[self.otype], STM32X_PULLUP[self.pullup], af))
+        label = self.signal
 
-    if self.label:
-      s.append(" %s" % self.label)
-    else:
-      s.append(" %s" % self.signal)
+      af = ''
+      if self.is_input():
+        gpio_type = 'GPIO_IN'
+      elif self.is_output():
+        gpio_type = 'GPIO_OUT'
+      elif self.is_analog():
+        gpio_type = 'GPIO_AN'
+      else:
+        gpio_type = 'GPIO_AF'
+        # NOTE This isn't ideal, there are multiple ways the AF are defined in
+        # the StdPeriph headers depending on model, e.g.
+        # F0/F3 -> GPIO_AF_<number>
+        # F4 -> GPIO_AF_<function> (with some GPIO_AF<n>_<function>)
+        # So the compromise seems to be to use the integer value and annotate
+        # with the function as a comment
+        if numeric:
+          m = re.findall(r'AF(?P<af>\d)', self.af)
+          af = "{}/*{}*/".format(m[0], self.af)
+        else:
+          af = self.af
 
-    print("{} {} {} {}".format(self.name, type, self.signal, self.label))
-    return "".join(s)
-
-  def define(self):
-    pass
+      gpio = {'label': label,
+              'type' : gpio_type,
+              'port' : self.port,
+              'pin' : self.pin,
+              'pullup' : STM32X_PULLUP[self.pullup],
+              'otype' : STM32X_OTYPE[self.otype],
+              'speed' : STM32X_SPEED[self.speed],
+              'af' : af}
+      return gpio
 
 class PinoutParser:
-  def __init__(self, verbose=False):
+  def __init__(self, numeric=False, verbose=False):
+    self.numeric = numeric
     self.verbose = verbose
     self.mcu_family = ""
     self.mcu_name = ""
@@ -218,9 +231,8 @@ class PinoutParser:
         if m:
           self.mcu_name = m.groupdict()['name']
           continue
-   
+
     self.ioc_pin_attributes = ioc_pin_attributes
-    print("Done.")
     print("%02d pins found" % len(self.ioc_pin_attributes))
 
   # Reading the CSV file is optional, but it seems to provide nicer names for
@@ -271,7 +283,7 @@ class PinoutParser:
       raise RuntimeError("No AF found for %s on %s, xpath=%s" % (pin.name, pin.signal, xpath))
     return af[0].text
 
-  def export_h(self, basename, numeric, ns):
+  def export_h(self, basename, ns, typedef):
     h = basename + '.h'
     print("Exporting header file {}".format(h))
     self.warnings = []
@@ -289,7 +301,15 @@ class PinoutParser:
         self.warnings.append(pin_name)
         continue
 
-      pin_declarations.append(pin.declare(numeric))
+      if self.verbose:
+          print(pin)
+      else:
+          print("{0:<12}\t{1}\t{2}".format(pin.name, pin.signal, pin.label))
+      gpio = pin.build_gpio(self.numeric)
+      if typedef:
+          pin_declarations.append(GPIO_TYPEDEF_FORMATTERS[gpio['type']] % gpio)
+      else:
+          pin_declarations.append(GPIO_FORMATTERS[gpio['type']] % gpio)
       self.exported += 1
       used_ports.add(pin.port)
 
@@ -322,12 +342,11 @@ class PinoutParser:
     if ns: f.write("}} // namespace {}\n".format(ns))
     f.write("#endif // {}\n".format(header_guard))
 
-    print('-' * 80)
-    print(" %2d exported" % self.exported)
+    if self.verbose: print(" %2d exported" % self.exported)
     if len(self.unused): print(" %2d unused  : %s" % (len(self.unused), ", ".join(self.unused)))
     if len(self.warnings): print(" %2d warnings: %s" % (len(self.warnings), ", ".join(self.warnings)))
 
-  def export_cc(self, basename, numeric, ns):
+  def export_cc(self, basename, ns):
     cc = basename + '.cc'
     print("Exporting cc file (may be empty){}".format(cc))
 
@@ -339,6 +358,7 @@ if __name__ == "__main__":
   parser.add_argument('-n', '--numeric', action='store_true', help='Translate AF names to numeric')
   parser.add_argument('-m', '--cubemx', required=True, help='Root path to CubeMX files')
   parser.add_argument('-o', '--output', required=True, help='Output path (.h .cc will be replaced/appended)')
+  parser.add_argument('-t', '--typedef', action='store_true', help='Export typedefs instead of members')
   args = parser.parse_args()
 
   ioc_file = None
@@ -357,7 +377,7 @@ if __name__ == "__main__":
 
   basename = os.path.splitext(args.output)[0]
 
-  parser = PinoutParser(args.verbose)
+  parser = PinoutParser(numeric=args.numeric, verbose=args.verbose)
   parser.read_ioc(ioc_file)
   if csv_file:
     parser.read_csv(csv_file)
@@ -369,5 +389,5 @@ if __name__ == "__main__":
     print("FAMILY : %s (%s)" % (parser.mcu_family, parser.mcu_name))
     print('-' * 80)
 
-  parser.export_h(basename, args.numeric, args.namespace)
+  parser.export_h(basename, args.namespace, args.typedef)
 #  parser.export_cc(basename, args.numeric, args.namespace)

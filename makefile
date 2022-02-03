@@ -320,7 +320,7 @@ $(PINOUT_SCRIPT): $(BUILD_DIR) $(PROJECT_IOC_FILE)
 pinout: $(PINOUT_SCRIPT)
 	$(CUBEMX_EXE) -s $(shell realpath $(PINOUT_SCRIPT)) > $(BUILD_DIR)cubemx.log
 	python3 $(STM32X_DIR)tools/stm32x_cubemx_gpio_export.py $(PROJECT_IOC_FILE) $(PROJECT_CSV_FILE) \
-		--namespace $(PROJECT) --numeric \
+		--namespace $(PROJECT) --numeric $(PINOUT_OPTIONS) \
 		--cubemx $(CUBEMX) \
 		-o ./drivers/gpio
 

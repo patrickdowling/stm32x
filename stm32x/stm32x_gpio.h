@@ -150,17 +150,17 @@ struct GPIO {
 };
 
 // Standalone GPIO definitions
-template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd>
-using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd, 0, true>;
+template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, bool enable_port_clock=true>
+using GPIO_OUT = GPIO<port, pin, GPIO_MODE::OUT, speed, otype, pupd, 0, enable_port_clock>;
 
-template <GPIO_PORT port, uint16_t pin, GPIO_PUPD pupd>
-using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd, 0, true>;
+template <GPIO_PORT port, uint16_t pin, GPIO_PUPD pupd, bool enable_port_clock = true>
+using GPIO_IN = GPIO<port, pin, GPIO_MODE::IN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, pupd, 0, enable_port_clock>;
 
-template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af>
-using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af, true>;
+template <GPIO_PORT port, uint16_t pin, GPIO_SPEED speed, GPIO_OTYPE otype, GPIO_PUPD pupd, uint8_t af, bool enable_port_clock = true>
+using GPIO_AF  = GPIO<port, pin, GPIO_MODE::AF, speed, otype, pupd, af, enable_port_clock>;
 
-template <GPIO_PORT port, uint16_t pin>
-using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE, 0, true>;
+template <GPIO_PORT port, uint16_t pin, bool enable_port_clock = true>
+using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE, 0, enable_port_clock>;
 
 } // namespace stm32x
 
