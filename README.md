@@ -20,13 +20,14 @@
 - Update to c++14/17 (\*)
 - Formalize GPIO (and possibly peripheral) export into the base project.
 - Externalize the directories for specific families to separate repos?
-- Support for different models within the families is sketchy at best (\*)
+- Support for different models within the families is sketchy at best (\*\*)
 - Better support for other debugger/upload options than the Black Magic Probe; openocd was used in some projects but hasn't made it to main makefile yet.
 
 (\*)
-The default C++ version is c++11. Using the `STM32X_CPPSTD` variable this can be changed.
-- Difficutly: this means that at least a newer version of CMSIS is required since the `register` keyword is deprecated.
+- Possible using the `STM32X_CPPSTD` variable. The default C++ version is c++11.
+- Difficutly: this may require newer versions of CMSIS is required since the `register` keyword is deprecated.
 - As a somewhat temporary solution CMSIS is now being used directly and _not_ the ST packaged version.
+- C++17 seems to work, C++20 will be more interesting given `volatile` is deprecated.
 
 (\*\*)
 - In general it seems useful to use the ST `STM32CubeF0` et al. repositories...

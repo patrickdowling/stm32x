@@ -73,6 +73,12 @@ SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
 MAX_FRAME_SIZE ?= 128
 
+ifeq (TRUE,$(DISABLE_WDOUBLE_PROMOTION))
+	OPTIONAL_C_FLAGS += -Wno-double-promotion
+else
+	OPTIONAL_C_FLAGS += -Wdouble-promotion
+endif
+
 C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
 	   -fasm \
 	   -finline \
@@ -83,8 +89,9 @@ C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
 	   -Wlogical-op \
 	   -Wduplicated-branches \
 	   -Wduplicated-cond \
-	   -Wframe-larger-than=$(MAX_FRAME_SIZE) \
-	   -Wdouble-promotion
+	   -Wframe-larger-than=$(MAX_FRAME_SIZE)
+
+C_FLAGS += $(OPTIONAL_C_FLAGS)
 
 CPP_FLAGS += -fno-exceptions \
 	     -fno-rtti -fno-use-cxa-atexit \
