@@ -122,6 +122,7 @@ include $(MODEL_INC)
 ## Source & object files
 #
 INCLUDES += $(PROJECT_INCLUDE_DIRS)
+INCLUDES += $(PROJECT_RESOURCE_DIR)
 INCLUDES += $(STM32X_DIR)
 INCLUDES += $(STM32X_CMSIS_DIR)/Core/Include
 INCLUDES += $(STM32X_CMSIS_DIR)/DSP/Include
@@ -133,7 +134,7 @@ AS_FILES  += $(notdir $(wildcard $(patsubst %,%/*.s,$(PROJECT_SRC_DIRS))))
 VPATH += $(PROJECT_SRC_DIRS)
 OBJDIR = $(BUILD_DIR)
 
-RESOURCE_PY_FILES = $(filter-out $(PROJECT_RESOURCE_SCRIPT), $(wildcard $(PROJECT_RESOURCE_DIR)[!_]*.py))
+RESOURCE_PY_FILES = $(filter-out $(PROJECT_RESOURCE_SCRIPT), $(wildcard $(PROJECT_RESOURCE_DIR)/[!_]*.py))
 
 ###
 ## System core and linker
@@ -185,17 +186,18 @@ ECHO := @echo
 endif
 
 ARCH_PATH = $(TOOLCHAIN_PATH)bin/arm-none-eabi
-CC				= $(ARCH_PATH)-gcc
-CXX				= $(ARCH_PATH)-g++
-AS				= $(ARCH_PATH)-as
-OBJCOPY		= $(ARCH_PATH)-objcopy
-GDB				= $(ARCH_PATH)-gdb
-OBJDUMP		= $(ARCH_PATH)-objdump
-AR				= $(ARCH_PATH)-ar
-SIZE			= $(ARCH_PATH)-size
-NM				= $(ARCH_PATH)-nm
-RM				= rm -f
-MKDIR			= mkdir -p
+CC	:= $(ARCH_PATH)-gcc
+CXX	:= $(ARCH_PATH)-g++
+AS	:= $(ARCH_PATH)-as
+OBJCOPY	:= $(ARCH_PATH)-objcopy
+GDB	:= $(ARCH_PATH)-gdb
+OBJDUMP	:= $(ARCH_PATH)-objdump
+AR	:= $(ARCH_PATH)-ar
+SIZE	:= $(ARCH_PATH)-size
+NM	:= $(ARCH_PATH)-nm
+LD	:= $(ARCH_PATH)-ld
+RM	:= rm -f
+MKDIR	:= mkdir -p
 NUMFMT	:= $(shell command -v numfmt 2> /dev/null)
 ifeq (,$(NUMFMT))
 	NUMFMT  := gnumfmt
@@ -212,7 +214,7 @@ MAPFILE = $(BUILD_DIR)$(PROJECT).map
 SIZEFILE = $(BUILD_DIR)$(PROJECT).size
 DISFILE  = $(BUILD_DIR)$(PROJECT).s
 
-OBJS  = $(patsubst %,$(OBJDIR)%,$(C_FILES:.c=.o))
+OBJS = $(patsubst %,$(OBJDIR)%,$(C_FILES:.c=.o))
 OBJS += $(patsubst %,$(OBJDIR)%,$(CC_FILES:.cc=.o))
 OBJS += $(patsubst %,$(OBJDIR)%,$(AS_FILES:.s=.o))
 DEPS  = $(OBJS:.o=.d)
@@ -242,9 +244,9 @@ $(BUILD_DIR)%.bin: $(BUILD_DIR)%.elf
 	$(ECHO) "Creating binary $@..."
 	$(Q)$(OBJCOPY) -O binary $< $@
 
-$(ELFFILE): $(BUILD_DIR) $(OBJS) $(PROJECT_LINKER_SCRIPT)
+$(ELFFILE): $(BUILD_DIR) $(OBJS) $(EXTRA_OBJS) $(PROJECT_LINKER_SCRIPT) Makefile
 	$(ECHO) "Linking $@..."
-	$(Q)$(CC) $(LD_FLAGS) -o $(ELFFILE) $(OBJS)
+	$(Q)$(CC) $(LD_FLAGS) -o $(ELFFILE) $(OBJS) $(EXTRA_OBJS)
 
 $(PROJECT_LINKER_SCRIPT): $(LINKER_SCRIPT_IN)
 	$(ECHO) "Generating linker script from $(LINKER_SCRIPT_IN)..."
@@ -288,9 +290,19 @@ disassemble: $(DISFILE)
 .PHONY: resources
 resources: $(PROJECT_RESOURCE_FILE)
 
+$(PROJECT_RESOURCE_FILE): $(RESOURCE_PY_FILES)
+
 $(PROJECT_RESOURCE_SCRIPT:.py=.cc): $(PROJECT_RESOURCE_SCRIPT) $(RESOURCE_PY_FILES)
 	$(ECHO) "PY $^"
 	$(Q)PYTHONPATH="$(STM32X_DIR)" python3 $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
+
+
+.PHONY: dump
+dump:
+	@echo "PROJECT_RESOURCE_DIR=$(PROJECT_RESOURCE_DIR)"
+	@echo "RESOURCE_PY_FILES=$(RESOURCE_PY_FILES)"
+	@echo "OBJS=$(OBJS)"
+	@echo "EXTRA_OBJS=$(EXTRA_OBJS)"
 
 -include $(DEPS)
 

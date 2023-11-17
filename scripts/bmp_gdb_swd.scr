@@ -1,4 +1,4 @@
 #BMP debug script
 monitor version
-monitor swdp_scan
+monitor swd_scan
 attach 1
