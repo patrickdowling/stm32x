@@ -296,7 +296,7 @@ class PinoutParser:
             raise RuntimeError("No AF found for %s on %s, xpath=%s" % (pin.name, pin.signal, xpath))
         return af[0].text
 
-    def export_h(self, basename, ns, typedef):
+    def export_h(self, basename, ns, typedef, clocks):
         h = basename + '.h'
         print("Exporting header file {}".format(h))
         self.warnings = []
@@ -339,18 +339,26 @@ class PinoutParser:
         if ns:
             f.write("namespace {} {{\n".format(ns))
         f.write("class GPIO {\n")
-        f.write("  struct GPIO_PORT_INIT {\n")
-        f.write("    GPIO_PORT_INIT() {\n")
-        for port in sorted(used_ports):
-            f.write("      stm32x::GPIOx<stm32x::GPIO_PORT_{0}>::EnableClock(true);\n".format(port))
-        f.write("    }\n")
-        f.write("  };\n")
-        f.write("  GPIO_PORT_INIT port_initializer_;\n\n")
+        if clocks == 'auto':
+            f.write("  struct GPIO_PORT_INIT {\n")
+            f.write("    GPIO_PORT_INIT() {\n")
+            for port in sorted(used_ports):
+                f.write("      stm32x::GPIOx<stm32x::GPIO_PORT_{0}>::EnableClock(true);\n".format(port))
+            f.write("    }\n")
+            f.write("  };\n")
+            f.write("  GPIO_PORT_INIT port_initializer_;\n\n")
         f.write("public:\n")
         f.write("  GPIO() = default;\n")
         f.write("  DISALLOW_COPY_AND_ASSIGN(GPIO);\n")
         for pin in pin_declarations:
             f.write("  {};\n".format(pin))
+
+        if clocks == 'manual':
+                f.write("\n")
+                f.write("  static void EnableClocks(bool enable = true) {\n")
+                for port in sorted(used_ports):
+                    f.write("    stm32x::GPIOx<stm32x::GPIO_PORT_{0}>::EnableClock(enable);\n".format(port))
+                f.write("  }\n")
 
         f.write("}; // class GPIO\n\n")
         f.write("extern GPIO gpio;\n")
@@ -379,6 +387,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--cubemx', required=True, help='Root path to CubeMX files')
     parser.add_argument('-o', '--output', required=True, help='Output path (.h .cc will be replaced/appended)')
     parser.add_argument('-t', '--typedef', action='store_true', help='Export typedefs instead of members')
+    parser.add_argument('--clocks', default='auto', choices=['auto', 'manual'], help='Determine whether GPIO clocks are enabled in constructor or manually')
     args = parser.parse_args()
 
     ioc_file = None
@@ -409,5 +418,5 @@ if __name__ == "__main__":
         print("FAMILY : %s (%s)" % (parser.mcu_family, parser.mcu_name))
         print('-' * 80)
 
-    parser.export_h(basename, args.namespace, args.typedef)
+    parser.export_h(basename, args.namespace, args.typedef, args.clocks)
 #  parser.export_cc(basename, args.numeric, args.namespace)
