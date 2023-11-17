@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 // -----------------------------------------------------------------------------
@@ -32,39 +32,43 @@
 
 namespace stm32x {
 
+// Note: Assumes switch to GND
+// TODO invert via template?
 class SwitchState {
 public:
   SwitchState() { Init(); }
-  ~SwitchState() { }
+  ~SwitchState() {}
 
-  void Init() {
-    state_ = 0xff;
+  void Init() { state_ = 0xff; }
+
+  template <typename GPIO>
+  void Poll()
+  {
+    state_ = (state_ << 1) | GPIO::Read();
   }
 
   template <typename GPIO>
-  void Poll() {
-    state_ = state_ << 1 | GPIO::Read();
+  void Poll(GPIO &gpio)
+  {
+    state_ = (state_ << 1) | gpio.Read();
   }
+
+  template <typename T>
+  void Poll(const T bits, const T bitmask)
+  {
+    // static_assert(has_single_bit(bitmask));
+    state_ = (state_ << 1) | ((bits & bitmask) ? 1 : 0);
+  }
+
+  inline bool pressed() const { return state_ == 0x00; }
+
+  inline bool just_pressed() const { return state_ == 0x80; }
+
+  inline bool released() const { return state_ == 0x7f; }
 
   template <typename GPIO>
-  void Poll(GPIO &gpio) {
-    state_ = state_ << 1 | gpio.Read();
-  }
-
-  inline bool pressed() const {
-    return state_ == 0x00;
-  }
-
-  inline bool just_pressed() const {
-    return state_ == 0x80;
-  }
-
-  inline bool released() const {
-    return state_ == 0x7f;
-  }
-
-  template <typename GPIO>
-  bool read_immediate() const {
+  bool read_immediate() const
+  {
     return !GPIO::Read();
   }
 
@@ -72,6 +76,6 @@ private:
   uint8_t state_;
 };
 
-} // namespace stm32x
+}  // namespace stm32x
 
-#endif // STM32X_SWITCH_H_
+#endif  // STM32X_SWITCH_H_

@@ -110,6 +110,8 @@ struct GPIOx : public GPIOxImpl<GPIOx<port>> {
   using GPIO_AN  = GPIO<port, pin, GPIO_MODE::AN, GPIO_SPEED::MEDIUM, GPIO_OTYPE::PP, GPIO_PUPD::NONE>;
 };
 
+// TODO Only allow set on GPIO_OUT
+
 // GPIO pin definition
 // Automatically enables peripheral clock. This leads to some duplication of
 // that code (since each pin calls the enable function), so there's some room
@@ -123,6 +125,7 @@ struct GPIO {
 
   static constexpr uint16_t Mask = 0x0001U << pin;
   static constexpr uint16_t Source = pin;
+  static constexpr uint16_t Pin = pin;
 
   static inline void Set() { PORT::Set(Mask); }
   static inline void Reset() { PORT::Reset(Mask); }
