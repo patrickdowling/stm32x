@@ -54,7 +54,7 @@ static inline uint32_t cycles_to_us(uint32_t cycles) {
 
 class CycleMeasurement {
 public:
-  DISALLOW_COPY_AND_ASSIGN(CycleMeasurement);
+  DELETE_COPY_MOVE(CycleMeasurement);
 
   CycleMeasurement() : start_(DWT->CYCCNT) { }
 

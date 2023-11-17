@@ -349,7 +349,7 @@ class PinoutParser:
             f.write("  GPIO_PORT_INIT port_initializer_;\n\n")
         f.write("public:\n")
         f.write("  GPIO() = default;\n")
-        f.write("  DISALLOW_COPY_AND_ASSIGN(GPIO);\n")
+        f.write("  DELETE_COPY_MOVE(GPIO);\n\n")
         for pin in pin_declarations:
             f.write("  {};\n".format(pin))
 

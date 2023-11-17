@@ -46,7 +46,7 @@ enum EI2CSlaveState {
 template <size_t tx_buffer_size, size_t rx_buffer_size>
 class I2CSlaveHelper {
 public:
-  DISALLOW_COPY_AND_ASSIGN(I2CSlaveHelper);
+  DELETE_COPY_MOVE(I2CSlaveHelper);
   I2CSlaveHelper() { }
   ~I2CSlaveHelper() { }
 

@@ -38,7 +38,7 @@ namespace stm32x {
 template <size_t buffer_size>
 class MemoryPool {
 public:
-  DISALLOW_COPY_AND_ASSIGN(MemoryPool);
+  DELETE_COPY_MOVE(MemoryPool);
   MemoryPool() { }
   ~MemoryPool() { }
 

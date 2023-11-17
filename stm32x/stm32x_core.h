@@ -39,7 +39,7 @@ enum struct GPIO_PUPD : uint8_t;
 class Core {
 public:
   Core() = default;
-  DISALLOW_COPY_AND_ASSIGN(Core);
+  DELETE_COPY_MOVE(Core);
 
   void Init(uint32_t systick_ticks);
 

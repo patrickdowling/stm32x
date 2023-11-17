@@ -33,7 +33,9 @@
 #define STM32X_UTIL_RINGBUFFER_H_
 
 #include <stdint.h>
+
 #include "util/util_macros.h"
+#include "util/util_templates.h"
 
 namespace util {
 
@@ -41,51 +43,47 @@ template <typename T, size_t size>
 class RingBuffer {
 public:
   RingBuffer() = default;
-  DISALLOW_COPY_AND_ASSIGN(RingBuffer);
+  DELETE_COPY_MOVE(RingBuffer);
 
-  inline size_t readable() const {
-    return write_ptr_ - read_ptr_;
-  }
+  static_assert(util::has_single_bit(size), "size must be power-of-two");
 
-  inline size_t writeable() const {
-    return size - readable();
-  }
+  inline size_t readable() const { return write_ptr_ - read_ptr_; }
 
-  inline T Read() {
+  inline size_t writeable() const { return size - readable(); }
+
+  inline T Read()
+  {
     size_t read_ptr = read_ptr_;
     T value = buffer_[read_ptr & (size - 1)];
     read_ptr_ = read_ptr + 1;
     return value;
   }
 
-  inline T Peek() const {
-    return buffer_[read_ptr_ & (size - 1)];
-  }
+  inline T Peek() const { return buffer_[read_ptr_ & (size - 1)]; }
 
-  inline void Write(T value) {
+  inline void Write(T value)
+  {
     size_t write_ptr = write_ptr_;
     buffer_[write_ptr & (size - 1)] = value;
     write_ptr_ = write_ptr + 1;
   }
 
-  inline void Flush() {
-    write_ptr_ = read_ptr_ = 0;
-  }
+  inline void Flush() { write_ptr_ = read_ptr_ = 0; }
 
   template <class... Args>
-  inline void EmplaceWrite(Args&&... args) {
+  inline void EmplaceWrite(Args&&... args)
+  {
     size_t write_ptr = write_ptr_;
-    buffer_[write_ptr_ & (size -1)] = T{args...};
+    buffer_[write_ptr_ & (size - 1)] = T{args...};
     write_ptr_ = write_ptr + 1;
   }
 
 private:
-
   T buffer_[size];
   volatile size_t write_ptr_ = 0;
   volatile size_t read_ptr_ = 0;
 };
 
-} // namespace util
+}  // namespace util
 
-#endif // STM32X_UTIL_RINGBUFFER_H_
+#endif  // STM32X_UTIL_RINGBUFFER_H_
