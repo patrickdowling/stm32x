@@ -318,6 +318,7 @@ dump:
 #
 PROJECT_CSV_FILE = $(PROJECT_IOC_FILE:.ioc=.csv)
 PINOUT_SCRIPT = $(BUILD_DIR)$(PROJECT).scr
+PINOUT_GPIO_PATH ?= ./src/drivers/$(PROJECT)_gpio
 
 ifeq "$(shell uname)" "Linux"
 CUBEMX_ROOT ?= $(shell realpath ~)/STM32CubeMX
@@ -341,7 +342,7 @@ pinout: $(PINOUT_SCRIPT)
 	python3 $(STM32X_DIR)tools/stm32x_cubemx_gpio_export.py $(PROJECT_IOC_FILE) $(PROJECT_CSV_FILE) \
 		--namespace $(PROJECT) --numeric $(PINOUT_OPTIONS) \
 		--cubemx $(CUBEMX) \
-		-o ./drivers/gpio
+		-o $(PINOUT_GPIO_PATH)
 
 ###
 ## Flash/programming
