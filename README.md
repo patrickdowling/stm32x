@@ -15,6 +15,10 @@
 ## Should I use it?
 - Probably not. There are working prototypes of things running successfully on F0, F4 and F373 boards but it was mostly for my amusement and a vehicle to figure out how things fit together. I tend to do that by re-implementing things from the ground up.
 
+##
+- Clang support
+- Better static analysis support
+
 ## Quo Vadis
 - More templates, fewer macros.
 - Update to c++14/17 (\*)

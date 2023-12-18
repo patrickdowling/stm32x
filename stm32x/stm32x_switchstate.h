@@ -61,10 +61,9 @@ public:
   }
 
   inline bool pressed() const { return state_ == 0x00; }
-
   inline bool just_pressed() const { return state_ == 0x80; }
 
-  inline bool released() const { return state_ == 0x7f; }
+  inline bool just_released() const { return state_ == 0x7f; }
 
   template <typename GPIO>
   bool read_immediate() const

@@ -27,6 +27,8 @@
 
 #include <stdint.h>
 
+#include <type_traits>
+
 namespace util {
 
 // c++20 has it's own __cpp_lib_int_pow2
@@ -35,6 +37,35 @@ constexpr bool has_single_bit(T value) noexcept
 {
   return value && !(value & (value - 1));
 }
+
+// Converting enums to the underlying type is questionable.
+// But if we're going to do it, might as well automatically find the underlying type (easier in
+// c++23) and make it optional ("trust me, I know what I'm doing").
+
+template <typename T>
+struct is_index_enum {
+  static constexpr bool value = false;
+};
+
+template <typename E, typename = typename std::enable_if<is_index_enum<E>::value, E>::type>
+constexpr typename std::underlying_type<E>::type enum_to_i(E e)
+{
+  return static_cast<typename std::underlying_type<E>::type>(e);
+}
+
+// Assumes the enum has a ::LAST field
+template <typename E, typename = typename std::enable_if<std::is_enum<E>::value, E>::type>
+constexpr typename std::underlying_type<E>::type enum_count()
+{
+  return static_cast<typename std::underlying_type<E>::type>(E::LAST);
+}
+
 }  // namespace util
+
+#define ENABLE_ENUM_TO_INDEX(enum_type)   \
+  template <>                             \
+  struct util::is_index_enum<enum_type> { \
+    static constexpr bool value = true;   \
+  }
 
 #endif  // STM32X_UTIL_TEMPLATES_H_
