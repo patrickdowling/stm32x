@@ -92,7 +92,7 @@ class ResourceTableEnumerated(ResourceTable):
   def __init__(self, resource):
     super(ResourceTableEnumerated, self).__init__(resource)
 
-    self._enum_name = 'E' + ''.join(x.title() for x in self._name.split('_'))
+    self._enum_name = self.generate_enum_name()
     t = self._c_type + ' '
     if self._use_aliases:
       t = t + '*'
@@ -116,6 +116,10 @@ class ResourceTableEnumerated(ResourceTable):
   @property
   def enum_name(self):
     return self._enum_name
+
+  def generate_enum_name(self):
+      # 'E' + ''.join(x.upper() for x in self._name.split('_'))
+      return self._name.upper() + '_RESID'
 
   def declare(self, f):
     self.declare_enums(f)
@@ -187,13 +191,14 @@ class ResourceTableEnumerated(ResourceTable):
 class ResourceLibrary(object):
   def __init__(self, resources, target, namespace, includes, header):
     self._tables = []
+    self._target = target
     self._namespace = namespace
     self._includes = includes
     if not self._includes:
       self._includes = []
     self._header = header
 
-    self._header_guard = "%s_%s_H_" % (target.upper(), self._namespace.upper())
+    self._header_guard = "%s_H_" % (self._namespace.upper().replace("::", "_"))
 
     for r in resources:
       table_type = r['type']
@@ -225,7 +230,7 @@ class ResourceLibrary(object):
 
   def generate_h(self, root_path):
     f = open(root_path + '.h', 'w')
-    if self.header: f.write(self.header + '\n')
+    if self.header and len(self.header): f.write(self.header + '\n')
     f.write('#ifndef %s\n' % self.header_guard)
     f.write('#define %s\n' % self.header_guard)
     f.write('\n')
@@ -244,7 +249,7 @@ class ResourceLibrary(object):
   def generate_cc(self, root_path):
     f = open(root_path + '.cc', 'w')
     if self.header: f.write(self.header + '\n')
-    f.write('#include "%s.h"\n\n' % self.namespace)
+    f.write('#include "%s.h"\n\n' % os.path.basename(root_path))
     self._open_namespace(f)
     for table in self._tables:
       table.compile(f)
