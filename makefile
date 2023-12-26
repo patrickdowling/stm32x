@@ -79,25 +79,39 @@ else
 	OPTIONAL_C_FLAGS += -Wdouble-promotion
 endif
 
-C_FLAGS += -g -Wall -Werror -Wextra -Wshadow \
+C_FLAGS += -g -Wall -Werror -Wextra \
 	   -fasm \
 	   -finline \
 	   -finline-functions-called-once \
 	   -fdata-sections -ffunction-sections \
 	   -fshort-enums \
 	   -fno-move-loop-invariants \
-	   -Wlogical-op \
+	   -fdevirtualize \
+	   -Wcast-align=strict \
 	   -Wduplicated-branches \
 	   -Wduplicated-cond \
-	   -Wframe-larger-than=$(MAX_FRAME_SIZE)
+	   -Wframe-larger-than=$(MAX_FRAME_SIZE) \
+	   -Wlogical-op \
+	   -Wredundant-decls \
+	   -Wshadow \
+	   -Wshift-overflow=2 \
+	   -Wtrampolines \
+	   -Wundef \
 
 C_FLAGS += $(OPTIONAL_C_FLAGS)
 
 CPP_FLAGS += -fno-exceptions \
 	     -fno-rtti -fno-use-cxa-atexit \
 	     -Wpedantic \
+	     -Wctor-dtor-privacy \
+	     -Wextra-semi \
+	     -Wnoexcept \
 	     -Wnon-virtual-dtor \
-	     -Woverloaded-virtual
+	     -Wzero-as-null-pointer-constant \
+	     -Woverloaded-virtual \
+	     -Wzero-as-null-pointer-constant
+
+#	     -Wuseless-cast -> CMSIS et al
 
 # -Wdouble-promotion -> printf
 # -Wconversion -> OMGWTFBBQ
@@ -172,14 +186,14 @@ endif
 PROJECT_LINKER_SCRIPT = $(BUILD_DIR)$(PROJECT).ld
 
 LD_FLAGS = \
-			-Wl,-Map=$(MAPFILE) \
-			-Wl,--gc-sections \
-			-T $(PROJECT_LINKER_SCRIPT) \
-			$(ARCH_FLAGS) \
-			$(addprefix -I, $(INCLUDES)) \
-			$(addprefix -D, $(SYSTEM_DEFINES)) \
-			-L$(BUILD_DIR) \
-			$(PROJECT_LINKER_FLAGS)
+	-Wl,-Map=$(MAPFILE) \
+	-Wl,--gc-sections \
+	-T $(PROJECT_LINKER_SCRIPT) \
+	$(ARCH_FLAGS) \
+	$(addprefix -I, $(INCLUDES)) \
+	$(addprefix -D, $(SYSTEM_DEFINES)) \
+	-L$(BUILD_DIR) \
+	$(PROJECT_LINKER_FLAGS)
 
 ###
 ## Setup
@@ -232,11 +246,11 @@ C_FLAGS += $(addprefix -D, $(PROJECT_DEFINES)) $(addprefix -D, $(SYSTEM_DEFINES)
 C_FLAGS += -MMD -MP # dependency generation
 
 $(BUILD_DIR)%.o: %.c
-	$(ECHO) "C $<..."
+	$(ECHO) "CC $<..."
 	$(Q)$(CC) -c -std=$(STM32X_CSTD) $(C_FLAGS) $< -o $@
 
 $(BUILD_DIR)%.o: %.cc
-	$(ECHO) "CC $<..."
+	$(ECHO) "CXX $<..."
 	$(Q)$(CXX) -c -std=$(STM32X_CPPSTD) $(C_FLAGS) $(CPP_FLAGS) $< -o $@
 
 $(BUILD_DIR)%.o: %.s
