@@ -164,6 +164,10 @@ SYSTEM_DEFINES += \
 	RAM_SIZE=$(shell $(NUMFMT) --from=iec $(RAM_SIZE)) \
 	FLASH_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SIZE))
 
+ifneq (,$(FLASH_ORIGIN))
+SYSTEM_DEFINES += FLASH_ORIGIN=$(FLASH_ORIGIN)
+endif
+
 ifneq (,$(MIN_STACK_SIZE))
 SYSTEM_DEFINES += \
 	MIN_STACK_SIZE=$(shell $(NUMFMT) --from=iec $(MIN_STACK_SIZE))
