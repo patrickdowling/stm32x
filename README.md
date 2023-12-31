@@ -18,6 +18,7 @@
 ## TODO
 - Clang support
 - Better static analysis support
+- Possibly make `-Werror` optional (new compilers bring new warnings, should the build fail?)
 
 ## Quo Vadis
 - More templates, fewer macros.

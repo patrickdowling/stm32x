@@ -98,7 +98,6 @@ C_FLAGS += -g -Wall -Werror -Wextra \
 	   -Wtrampolines \
 	   -Wundef \
 
-C_FLAGS += $(OPTIONAL_C_FLAGS)
 
 CPP_FLAGS += -fno-exceptions \
 	     -fno-rtti -fno-use-cxa-atexit \
@@ -111,8 +110,10 @@ CPP_FLAGS += -fno-exceptions \
 	     -Woverloaded-virtual \
 	     -Wzero-as-null-pointer-constant
 
-#	     -Wuseless-cast -> CMSIS et al
+C_FLAGS += $(OPTIONAL_C_FLAGS)
+CPP_FLAGS += $(OPTIONAL_CPP_FLAGS)
 
+# -Wuseless-cast -> CMSIS et al
 # -Wdouble-promotion -> printf
 # -Wconversion -> OMGWTFBBQ
 # -Wold-style-cast -> StdPeriphLib :(

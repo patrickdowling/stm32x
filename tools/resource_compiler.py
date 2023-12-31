@@ -178,7 +178,7 @@ class ResourceTableEnumerated(ResourceTable):
       f.write('};\n\n')
     else:
       for mva in self._member_value_aliases:
-        mva.compile(f, True)
+        mva.compile(f, False)
       f.write('\n')
 
       f.write('%s = {\n' % self.declaration)
