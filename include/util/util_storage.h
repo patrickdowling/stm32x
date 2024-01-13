@@ -1,4 +1,4 @@
-// Copyright 2018 Patrick Dowling
+// Copyright 2018-2024 Patrick Dowling
 //
 // Author: Patrick Dowling (pld@gurkenkiste.com)
 //
@@ -36,20 +36,27 @@
 #ifndef STM32X_UTIL_STORAGE_H_
 #define STM32X_UTIL_STORAGE_H_
 
-#include <inttypes.h>
+#include <cinttypes>
+
 #include "util/util_macros.h"
 
-#ifdef TESTING
-#include <stdio.h>
-# define DUMP_HEADER(op, addr, h) \
-  do { printf("%c %08x: %04x %02x %u %u %02x\n", op, addr, (h)->type_id, (h)->version, (h)->generation, (h)->length, (h)->crc); } while (0)
+#ifdef STM32X_TESTING
+#include "fmt/core.h"
+#define DUMP_HEADER(op, addr, h)                                                                \
+  do {                                                                                          \
+    fmt::println("{} {:08x}: {:04x} {:04x} {} {} {:04x}", op, addr, (h)->type_id, (h)->version, \
+                 (h)->generation, (h)->length, (h)->crc);                                       \
+  } while (0)
 #else
-# define DUMP_HEADER(op, addr, h)
+#define DUMP_HEADER(op, addr, h)
 #endif
 
 namespace util {
 
-template<uint32_t end_address, uint32_t storage_length, typename StorageImpl, typename ValueType>
+// NOTE Initial implementation used hardware for this but it's not super critical?
+uint16_t CalcCRC16(const void *data, size_t len);
+
+template <uint32_t end_address, uint32_t storage_length, typename StorageImpl, typename ValueType>
 class Storage {
 private:
   struct BlockHeader {
@@ -75,16 +82,12 @@ public:
   static_assert(0 == sizeof(ValueType) % StorageImpl::ALIGNMENT, "Unaligned ValueType");
   static_assert(0 == sizeof(BlockHeader) % StorageImpl::ALIGNMENT, "Unaligned BlockHeader");
 
-  Storage()
-  : generation_(0)
-  , rewrite_(false)
+  Storage() { StorageImpl::Init(ValueType::STORAGE_VERSION); }
+
+  ~Storage() {}
+
+  bool Load(ValueType &value)
   {
-    StorageImpl::Init(ValueType::STORAGE_VERSION);
-  }
-
-  ~Storage() { }
-
-  bool Load(ValueType &value) {
     const BlockHeader *valid_block = 0;
     uint16_t block_number = kNumBlocks - 1;
     while (block_number--) {
@@ -92,10 +95,9 @@ public:
       const BlockHeader *header = header_from_addr(current_block_address);
       DUMP_HEADER('R', current_block_address, header);
       if (header->type_id == ValueType::STORAGE_TYPE_ID &&
-          header->version == ValueType::STORAGE_VERSION &&
-          header->generation == block_number &&
+          header->version == ValueType::STORAGE_VERSION && header->generation == block_number &&
           header->length == sizeof(ValueType) &&
-          header->crc == StorageImpl::CalcCRC16(header + 1, sizeof(ValueType))) {
+          header->crc == CalcCRC16(header + 1, sizeof(ValueType))) {
         valid_block = header;
         break;
       } else {
@@ -104,12 +106,12 @@ public:
         // to overwrite it. Force a rewrite on the next save.
         // Since the structs might not align with the page boundaries, we'll
         // erase all pages
-        if (header->type_id != 0xffffffff)
-          rewrite_ = true;
+        if (header->type_id != 0xffffffff) rewrite_ = true;
       }
     }
 
     if (valid_block) {
+      DUMP_HEADER('V', 0, valid_block);
       std::memcpy(&value, valid_block + 1, sizeof(value));
       generation_ = valid_block->generation + 1;
       return true;
@@ -120,13 +122,14 @@ public:
     }
   }
 
-  bool Save(const ValueType &value) {
+  bool Save(const ValueType &value)
+  {
     BlockHeader header;
     header.type_id = ValueType::STORAGE_TYPE_ID;
     header.version = ValueType::STORAGE_VERSION;
     header.generation = generation_;
     header.length = sizeof(ValueType);
-    header.crc = StorageImpl::CalcCRC16(&value, sizeof(ValueType));
+    header.crc = CalcCRC16(&value, sizeof(ValueType));
 
     StorageImpl::Unlock();
     uint32_t write_address = block_address(header.generation);
@@ -154,31 +157,32 @@ public:
     return true;
   }
 
-  inline uint16_t generation() const {
-    return generation_;
-  }
+  inline uint16_t generation() const { return generation_; }
 
-#ifdef TESTING
-  void Reset() {
+#ifdef STM32X_TESTING
+  void Reset()
+  {
     generation_ = 0;
     rewrite_ = false;
   }
 #endif
 
 private:
+  uint16_t generation_ = 0;
+  bool rewrite_ = false;
 
-  uint16_t generation_;
-  bool rewrite_;
-
-  inline static uint32_t block_address(uint16_t generation) {
+  inline static uint32_t block_address(uint16_t generation)
+  {
     return kStorageBaseAddress + kBlockSize * generation;
   }
 
-  inline static const BlockHeader *header_from_addr(uint32_t base_address) {
+  inline static const BlockHeader *header_from_addr(uint32_t base_address)
+  {
     return reinterpret_cast<const BlockHeader *>(StorageImpl::Map(base_address));
   }
 
-  void EraseAllPages() {
+  void EraseAllPages()
+  {
     uint32_t page_addr = kStorageBaseAddress;
     size_t num_pages = kNumPages;
     while (num_pages--) {
@@ -187,19 +191,19 @@ private:
     }
   }
 
-  bool Write(uint32_t address, const void *data, size_t length) {
+  bool Write(uint32_t address, const void *data, size_t length)
+  {
     const uint32_t *src = static_cast<const uint32_t *>(data);
     length >>= 2;
     size_t written = 0;
     while (length--) {
-      if (StorageImpl::ProgramWord(address, *src++))
-        written += 4;
+      if (StorageImpl::ProgramWord(address, *src++)) written += 4;
       address += 4;
     }
     return written == length;
   }
 };
 
-} // namespace util
+}  // namespace util
 
-#endif // STM32X_UTIL_STORAGE_H_
+#endif  // STM32X_UTIL_STORAGE_H_

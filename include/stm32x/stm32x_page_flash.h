@@ -47,42 +47,30 @@ public:
   static constexpr uint32_t PAGE_SIZE = FLASH_PAGE_SIZE;
   static constexpr uint32_t ALIGNMENT = 4;
 
-  static void Init(uint16_t version);
+  static void Init([[maybe_unused]] uint16_t version) {}
 
-  static void Unlock() {
-    FLASH_Unlock();
-  }
+  static void Unlock() { FLASH_Unlock(); }
 
-  static void Lock() {
-    return FLASH_Lock();
-  }
+  static void Lock() { return FLASH_Lock(); }
 
-  static bool ErasePage(uint32_t page_address) {
+  static bool ErasePage(uint32_t page_address)
+  {
     return FLASH_COMPLETE == FLASH_ErasePage(page_address);
   }
 
-  static bool ProgramWord(uint32_t address, uint32_t data) {
+  static bool ProgramWord(uint32_t address, uint32_t data)
+  {
     return FLASH_COMPLETE == FLASH_ProgramWord(address, data);
   }
 
-  static bool ProgramHalfWord(uint32_t address, uint16_t data) {
+  static bool ProgramHalfWord(uint32_t address, uint16_t data)
+  {
     return FLASH_COMPLETE == FLASH_ProgramHalfWord(address, data);
   }
 
-  static uint16_t CalcCRC16(const void *data, uint32_t length) {
-    CRC->CR |= CRC_CR_RESET;
-    length >>= 1;
-    const uint16_t *src = static_cast<const uint16_t *>(data);
-    while (length--)
-       *(uint16_t*)(CRC_BASE) = *src++;
-    return CRC->DR;
-  }
-
-  inline static uint32_t Map(uint32_t address) {
-    return address;
-  }
+  inline static uint32_t Map(uint32_t address) { return address; }
 };
 
-} // namespace stm32x
+}  // namespace stm32x
 
-#endif // STM32X_PAGE_FLASH_H_
+#endif  // STM32X_PAGE_FLASH_H_

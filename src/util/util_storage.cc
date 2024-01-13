@@ -1,4 +1,4 @@
-// Copyright 2018 Patrick Dowling
+// Copyright 2018-2024 Patrick Dowling
 //
 // Author: Patrick Dowling (pld@gurkenkiste.com)
 //
@@ -24,24 +24,17 @@
 //
 // -----------------------------------------------------------------------------
 //
-// Flash storage implementation
-#if defined STM32X_F0XX || defined STM32X_F37X
+#include "util/util_storage.h"
 
-#include "stm32x_page_flash.h"
+namespace util {
 
-namespace stm32x {
-
-/*static*/
-void FlashStorage::Init(uint16_t version)
+uint16_t CalcCRC16(const void *data, size_t len)
 {
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
-
-  CRC->POL = 0x04C11DB7;
-  CRC->IDR = 0;
-  CRC->INIT = version;
-  CRC->CR = CRC_CR_RESET;
+  uint16_t crc = 0;
+  auto *src = static_cast<const char *>(data);
+  while (len--)
+    crc += *src++;
+  return crc ^ 0xffff;
 }
 
-} // namespace stm32x
-
-#endif
+}
