@@ -4,6 +4,8 @@
 #include "gtest/gtest.h"
 #include "util/util_storage.h"
 
+namespace stm32x::test {
+
 static constexpr uint8_t kFenceValue = 0xAA;
 
 template <uint32_t num_pages, uint32_t page_size, uint32_t alignment>
@@ -86,7 +88,7 @@ template <uint32_t num_pages, uint32_t page_size, uint32_t alignment>
 bool StorageImpl<num_pages, page_size, alignment>::locked = true;
 
 struct StorageData {
-  static constexpr uint32_t STORAGE_TYPE_ID = FOURCC<'T', 'E', 'S', 'T'>::value;
+  static constexpr uint32_t STORAGE_TYPE_ID = "TEST"_4CCV;
   static constexpr uint16_t STORAGE_VERSION = 0x1234;
 
   std::array<int32_t, 4> values = {};
@@ -174,5 +176,7 @@ struct TestParam {
 };
 
 REGISTER_TYPED_TEST_SUITE_P(TestStorage, Basics, Wrap);
-using TestTypes = ::testing::Types<TestParam<1, 1024>, TestParam<2, 1024>, TestParam<1,4096>>;
+using TestTypes = ::testing::Types<TestParam<1, 1024>, TestParam<2, 1024>, TestParam<1, 4096>>;
 INSTANTIATE_TYPED_TEST_SUITE_P(T, TestStorage, TestTypes);
+
+}  // namespace stm32x::test

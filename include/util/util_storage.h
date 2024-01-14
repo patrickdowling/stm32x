@@ -24,20 +24,21 @@
 //
 // -----------------------------------------------------------------------------
 //
-// FLASH storage helper -- a bit of a mix & match from o_C and stmlib.
-// The first implementation used a different generation number method in the
-// header and more complex scan, but after some deliberation the appraoch from
-// stmlib page_storage approach does seem simpler.
-// The type_id and length maybe aren't required but seem nice (even if there's
-// an additional version tag used to init the CRC). If there are multiple pages
-// there might be more effective ways to handle this with less erasing but it
-// hardly seems worth it.
+// FLASH storage helper -- a bit of a mix & match from o_C and stmlib. The first implementation used
+// a different generation number method in the header and more complex scan, but after some
+// deliberation the appraoch from stmlib page_storage approach does seem simpler. The generation
+// number could probably be removed.
+//
+// The type_id and length maybe aren't required but seem nice (even if there's an additional version
+// tag used to init the CRC). If there are multiple pages there might be more effective ways to
+// handle this with less erasing but it hardly seems worth it.
 
 #ifndef STM32X_UTIL_STORAGE_H_
 #define STM32X_UTIL_STORAGE_H_
 
 #include <cinttypes>
 
+#include "util/util_fourcc.h"
 #include "util/util_macros.h"
 
 #ifdef STM32X_TESTING
@@ -60,7 +61,7 @@ template <uint32_t end_address, uint32_t storage_length, typename StorageImpl, t
 class Storage {
 private:
   struct BlockHeader {
-    uint32_t type_id;
+    util::FOURCC::value_type type_id;
     uint16_t version;
     uint16_t generation;
     uint16_t length;

@@ -6,6 +6,7 @@ inc = [
 
 test_src = [
   'test_storage.cc',
+  'test_sector_detail.cc',
   'stm32x_test.cc'
   ]
 
