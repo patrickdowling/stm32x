@@ -28,6 +28,8 @@
 #ifndef STM32X_DEBUG_H_
 #define STM32X_DEBUG_H_
 
+#include <algorithm>
+
 #if defined STM32X_F0XX
 #error "DEBUG INTERFACE NOT SUPPORTED ON M0"
 #else
@@ -38,7 +40,8 @@ namespace stm32x {
 
 class Debug {
 public:
-  static void Init() {
+  static void Init()
+  {
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     ITM->LAR = 0xC5ACCE55;
     DWT->CYCCNT = 0;
@@ -46,7 +49,8 @@ public:
   }
 };
 
-static inline uint32_t cycles_to_us(uint32_t cycles) {
+static inline uint32_t cycles_to_us(uint32_t cycles)
+{
   return multiply_u32xu32_rshift32(cycles, (1ULL << 32) / (F_CPU / 1000000));
 }
 
@@ -56,11 +60,9 @@ class CycleMeasurement {
 public:
   DELETE_COPY_MOVE(CycleMeasurement);
 
-  CycleMeasurement() : start_(DWT->CYCCNT) { }
+  CycleMeasurement() : start_(DWT->CYCCNT) {}
 
-  uint32_t read() const {
-    return DWT->CYCCNT - start_;
-  }
+  uint32_t read() const { return DWT->CYCCNT - start_; }
 
 private:
   uint32_t start_;
@@ -70,44 +72,42 @@ class AveragedCycles {
 public:
   static constexpr uint32_t kSmoothing = 8;
 
-  AveragedCycles() : value_(0) { }
+  AveragedCycles() = default;
 
-  uint32_t value() const {
-    return value_;
-  }
+  uint32_t value() const { return value_; }
 
-  uint32_t value_in_us() const {
-    return cycles_to_us(value_);
-  }
+  uint32_t value_in_us() const { return cycles_to_us(value_); }
+  uint32_t max_in_us() const { return cycles_to_us(max_); }
 
-  void Reset() {
+  void Reset()
+  {
     value_ = 0;
+    max_ = 0;
   }
 
-  void Push(uint32_t cycles) {
+  void Push(uint32_t cycles)
+  {
+    max_ = std::max(cycles, max_);
     value_ = (value_ * (kSmoothing - 1) + cycles) / kSmoothing;
   }
 
 private:
-  uint32_t value_;
+  uint32_t value_ = 0;
+  uint32_t max_ = 0;
 };
 
 class ScopedCycleMeasurement {
 public:
-  ScopedCycleMeasurement(AveragedCycles &dest)
-  : dest_(dest)
-  { }
+  ScopedCycleMeasurement(AveragedCycles &dest) : dest_(dest) {}
 
-  ~ScopedCycleMeasurement() {
-    dest_.Push(cycles_.read());
-  }
+  ~ScopedCycleMeasurement() { dest_.Push(cycles_.read()); }
 
 private:
   AveragedCycles &dest_;
   CycleMeasurement cycles_;
 };
 
-} // namespace stm32x
+}  // namespace stm32x
 
 #endif
-#endif // STM32X_DEBUG_H_
+#endif  // STM32X_DEBUG_H_
