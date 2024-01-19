@@ -43,17 +43,14 @@ public:
 
   void Init(uint32_t systick_ticks);
 
-  void Tick() {
-    ++ticks_;
-  }
+  void Tick() { ++ticks_; }
 
-  inline uint32_t now() const volatile {
-    return ticks_;
-  }
+  inline uint32_t now() const volatile { return ticks_; }
 
-  void Delay(uint32_t ticks) {
+  void Delay(uint32_t ticks)
+  {
     const uint32_t start = now();
-    while ((now() - start) < ticks) { }
+    while ((now() - start) < ticks) {}
   }
 
 private:
@@ -61,14 +58,23 @@ private:
 };
 
 extern Core core;
-} // namespace stm32x
+}  // namespace stm32x
 
-#define STM32X_CORE_DEFINE(attr) namespace stm32x { stm32x::Core core attr; }
-#define STM32X_CORE_INIT(systick_ticks) do { stm32x::core.Init(systick_ticks); } while (0)
-#define STM32X_CORE_TICK() do { stm32x::core.Tick(); } while (0)
+#define STM32X_CORE_DEFINE(attr) \
+  namespace stm32x {             \
+  stm32x::Core core attr;        \
+  }
+#define STM32X_CORE_INIT(systick_ticks) \
+  do {                                  \
+    stm32x::core.Init(systick_ticks);   \
+  } while (0)
+#define STM32X_CORE_TICK() \
+  do {                     \
+    stm32x::core.Tick();   \
+  } while (0)
 #define STM32X_CORE_NOW() stm32x::core.now()
 
-#include "stm32x_model.h"
 #include "stm32x_gpio.h"
+#include "stm32x_model.h"
 
-#endif // STM32X_CORE_H_
+#endif  // STM32X_CORE_H_

@@ -32,9 +32,8 @@ uint16_t CalcCRC16(const void *data, size_t len)
 {
   uint16_t crc = 0;
   auto *src = static_cast<const char *>(data);
-  while (len--)
-    crc += *src++;
+  while (len--) crc += *src++;
   return crc ^ 0xffff;
 }
 
-}
+}  // namespace util

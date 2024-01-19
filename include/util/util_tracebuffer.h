@@ -8,10 +8,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // See http://creativecommons.org/licenses/MIT/ for more information.
 //
 // -----------------------------------------------------------------------------
@@ -36,12 +36,13 @@ class TraceBuffer {
 public:
   static const size_t kBufferSize = length;
 
-  TraceBuffer() : current_pos_(0) { }
+  TraceBuffer() : current_pos_(0) {}
 
-  void Push(char c) {
+  void Push(char c)
+  {
     size_t pos = current_pos_;
     buffer_[pos++] = c;
-    current_pos_ = pos & (kBufferSize- 1);
+    current_pos_ = pos & (kBufferSize - 1);
   }
 
 private:
@@ -49,6 +50,6 @@ private:
   char buffer_[kBufferSize];
 };
 
-} // namespace util
+}  // namespace util
 
-#endif // STM32X_UTIL_TRACEBUFFER_H_
+#endif  // STM32X_UTIL_TRACEBUFFER_H_

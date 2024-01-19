@@ -29,14 +29,15 @@
 
 namespace stm32x {
 
-static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b) __attribute__((always_inline));
+static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b)
+    __attribute__((always_inline));
 static inline uint32_t multiply_u32xu32_rshift32(uint32_t a, uint32_t b)
 {
   uint32_t out, tmp;
-  asm volatile("umull %0, %1, %2, %3" : "=r" (tmp), "=r" (out) : "r" (a), "r" (b));
+  asm volatile("umull %0, %1, %2, %3" : "=r"(tmp), "=r"(out) : "r"(a), "r"(b));
   return out;
 }
 
-} // namespace stm32x
+}  // namespace stm32x
 
-#endif // STM32X_MATH_H_
+#endif  // STM32X_MATH_H_

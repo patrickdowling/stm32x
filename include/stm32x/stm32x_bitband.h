@@ -43,55 +43,46 @@ namespace stm32x {
 namespace bitband {
 
 struct bit {
-    const uint32_t ptr_;
+  const uint32_t ptr_;
 
-    template <typename T>
-    inline void operator = (T i) {
-        *((__IO uint32_t *)ptr_) = i;
-    }
+  template <typename T>
+  inline void operator=(T i)
+  {
+    *((__IO uint32_t *)ptr_) = i;
+  }
 
-    inline operator uint32_t () const {
-        return *((__IO uint32_t *)ptr_);
-    }
+  inline operator uint32_t() const { return *((__IO uint32_t *)ptr_); }
 };
 
 template <uint32_t base, uint32_t bitnum>
-inline constexpr bit map_peripheral_bit() {
+inline constexpr bit map_peripheral_bit()
+{
   static_assert(0 == (base & 0x3), "Non word-aligned base");
   static_assert(bitnum > 0 && bitnum < 32, "32 bits");
-  return {
-      PERIPH_BB_BASE
-      + ((base - PERIPH_BASE) << 5)
-      + (bitnum << 2) };
+  return {PERIPH_BB_BASE + ((base - PERIPH_BASE) << 5) + (bitnum << 2)};
 }
 
 template <uint32_t base, uint32_t mask>
-inline constexpr bit map_peripheral_mask() {
+inline constexpr bit map_peripheral_mask()
+{
   static_assert(0 == (base & 0x3), "Non word-aligned base");
   static_assert(mask, "At least one bit needs to be set");
-  return {
-      PERIPH_BB_BASE
-      + ((base - PERIPH_BASE) << 5)
-      + (__builtin_ctz(mask) << 2) };
+  return {PERIPH_BB_BASE + ((base - PERIPH_BASE) << 5) + (__builtin_ctz(mask) << 2)};
 }
 
 // Map directly to bit at address
-inline constexpr bit map_peripheral_bit(__IO void *base, uint32_t bitnum) {
-  return {
-      PERIPH_BB_BASE
-      + (((uint32_t)base - PERIPH_BASE) << 5)
-      + (bitnum << 2) };
+inline constexpr bit map_peripheral_bit(__IO void *base, uint32_t bitnum)
+{
+  return {PERIPH_BB_BASE + (((uint32_t)base - PERIPH_BASE) << 5) + (bitnum << 2)};
 }
 
 // Use lowest non-zero bit in mask for the mapping
-inline constexpr bit map_peripheral_mask(__IO void *base, uint32_t mask) {
-  return {
-      PERIPH_BB_BASE
-      + (((uint32_t)base - PERIPH_BASE) << 5)
-      + (__builtin_ctz(mask) << 2) };
+inline constexpr bit map_peripheral_mask(__IO void *base, uint32_t mask)
+{
+  return {PERIPH_BB_BASE + (((uint32_t)base - PERIPH_BASE) << 5) + (__builtin_ctz(mask) << 2)};
 }
 
-};
-} // namespace stm32x
+};  // namespace bitband
+}  // namespace stm32x
 
-#endif // STM32X_BITBAND_H_
+#endif  // STM32X_BITBAND_H_

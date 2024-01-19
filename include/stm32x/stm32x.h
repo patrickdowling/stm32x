@@ -28,15 +28,15 @@
 #include <stdint.h>
 
 #if defined STM32X_F0XX
-# include "stm32f0xx.h"
+#include "stm32f0xx.h"
 #elif defined STM32X_F37X
-# include "stm32f37x.h"
+#include "stm32f37x.h"
 #elif defined STM32X_F4XX
-# include "stm32f4xx.h"
+#include "stm32f4xx.h"
 #else
 #error "INVALID MODEL"
 #endif
 
 #include "util/util_macros.h"
 
-#endif // STM32X_H_
+#endif  // STM32X_H_

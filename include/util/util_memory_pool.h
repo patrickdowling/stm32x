@@ -29,8 +29,10 @@
 #ifndef STM32X_UTIL_MEMORY_POOL_H_
 #define STM32X_UTIL_MEMORY_POOL_H_
 
-#include <array>
 #include <stdint.h>
+
+#include <array>
+
 #include "util_macros.h"
 
 namespace stm32x {
@@ -39,14 +41,15 @@ template <size_t buffer_size>
 class MemoryPool {
 public:
   DELETE_COPY_MOVE(MemoryPool);
-  MemoryPool() { }
-  ~MemoryPool() { }
+  MemoryPool() {}
+  ~MemoryPool() {}
 
   static constexpr size_t kBufferSize = buffer_size;
 
   // TODO aligned alloc
 
-  inline uint8_t *Alloc(size_t requested_size) {
+  inline uint8_t *Alloc(size_t requested_size)
+  {
     if (used_ + requested_size > kBufferSize) {
       return nullptr;
     } else {
@@ -57,27 +60,22 @@ public:
   }
 
   template <typename T>
-  inline T* AllocArray(size_t count) {
-    return reinterpret_cast<T*>(Alloc(sizeof(T) * count));
+  inline T *AllocArray(size_t count)
+  {
+    return reinterpret_cast<T *>(Alloc(sizeof(T) * count));
   }
 
-  inline void Free() {
-    used_ = 0;
-  }
+  inline void Free() { used_ = 0; }
 
-  size_t size() const {
-    return kBufferSize;
-  }
+  size_t size() const { return kBufferSize; }
 
-  size_t available() const {
-    return kBufferSize - used_;
-  }
+  size_t available() const { return kBufferSize - used_; }
 
 private:
   size_t used_ = 0;
   std::array<uint8_t, kBufferSize> buffer_;
 };
 
-} // namespace stm32x
+}  // namespace stm32x
 
-#endif // STM32X_UTIL_MEMORY_POOL_H_
+#endif  // STM32X_UTIL_MEMORY_POOL_H_

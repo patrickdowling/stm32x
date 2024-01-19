@@ -30,15 +30,11 @@ namespace stm32x {
 template <typename gpio_type>
 class ScopedPinTrace {
 public:
-  ScopedPinTrace() {
-    gpio_type::Set();
-  }
+  ScopedPinTrace() { gpio_type::Set(); }
 
-  ~ScopedPinTrace() {
-    gpio_type::Reset();
-  }
+  ~ScopedPinTrace() { gpio_type::Reset(); }
 };
 
-}
+}  // namespace stm32x
 
-#endif // STM32X_UTIL_PIN_TRACE_
+#endif  // STM32X_UTIL_PIN_TRACE_
