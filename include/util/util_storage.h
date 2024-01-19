@@ -95,8 +95,8 @@ public:
       uint32_t current_block_address = block_address(block_number);
       const BlockHeader *header = header_from_addr(current_block_address);
       DUMP_HEADER('R', current_block_address, header);
-      if (header->type_id == ValueType::STORAGE_TYPE_ID &&
-          header->version == ValueType::STORAGE_VERSION && header->generation == block_number &&
+      if (ValueType::STORAGE_TYPE_ID == header->type_id &&
+          ValueType::STORAGE_VERSION == header->version && header->generation == block_number &&
           header->length == sizeof(ValueType) &&
           header->crc == CalcCRC16(header + 1, sizeof(ValueType))) {
         valid_block = header;
@@ -126,7 +126,7 @@ public:
   bool Save(const ValueType &value)
   {
     BlockHeader header;
-    header.type_id = ValueType::STORAGE_TYPE_ID;
+    header.type_id = ValueType::STORAGE_TYPE_ID.value;
     header.version = ValueType::STORAGE_VERSION;
     header.generation = generation_;
     header.length = sizeof(ValueType);

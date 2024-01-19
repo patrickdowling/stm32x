@@ -88,7 +88,7 @@ template <uint32_t num_pages, uint32_t page_size, uint32_t alignment>
 bool StorageImpl<num_pages, page_size, alignment>::locked = true;
 
 struct StorageData {
-  static constexpr uint32_t STORAGE_TYPE_ID = "TEST"_4CCV;
+  static constexpr util::FOURCC STORAGE_TYPE_ID = "TEST"_4CC;
   static constexpr uint16_t STORAGE_VERSION = 0x1234;
 
   std::array<int32_t, 4> values = {};
