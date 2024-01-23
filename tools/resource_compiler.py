@@ -155,7 +155,7 @@ class ResourceTableEnumerated(ResourceTable):
       return self._formatter(value)
 
   def _compile_value(self, value, f, alias):
-    f.write("  %s, " % self._format_value(value, alias))
+    f.write("  %s," % self._format_value(value, alias))
 
   def _compile_alias(self, value, f, alias):
     f.write('%s;' % self._format_value(value, alias));
@@ -183,7 +183,7 @@ class ResourceTableEnumerated(ResourceTable):
 
       f.write('%s = {\n' % self.declaration)
       for enum, alias, (key, value) in zip(self._enums, self._aliases, self._entries):
-        f.write('  // %s\n' % enum)
+        #f.write('  // %s\n' % enum)
         self._compile_value(value, f, alias)
         f.write('\n')
       f.write('};\n\n')
