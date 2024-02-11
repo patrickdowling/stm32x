@@ -58,6 +58,16 @@ static constexpr bool operator==(const FOURCC &lhs, const FOURCC::value_type rhs
   return lhs.value == rhs;
 }
 
+static constexpr bool operator!=(const FOURCC &lhs, const FOURCC &rhs)
+{
+  return lhs.value != rhs.value;
+}
+
+static constexpr bool operator!=(const FOURCC &lhs, const FOURCC::value_type rhs)
+{
+  return lhs.value != rhs;
+}
+
 }  // namespace util
 
 constexpr util::FOURCC::value_type operator""_4CCV(const char *s, size_t len)
