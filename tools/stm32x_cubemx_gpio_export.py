@@ -185,7 +185,7 @@ class Pin:
             # So the compromise seems to be to use the integer value and annotate
             # with the function as a comment
             if numeric:
-                m = re.findall(r'AF(?P<af>\d)', self.af)
+                m = re.findall(r'AF(?P<af>\d+)', self.af)
                 af = "{}/*{}*/".format(m[0], self.af)
             else:
                 af = self.af
