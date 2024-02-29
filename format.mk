@@ -1,10 +1,4 @@
-ifdef VERBOSE
-Q :=
-ECHO := @true
-else
-Q := @
-ECHO := @echo
-endif
+include mk/utils.mk
 
 # clang-format
 CLANG_FORMAT_OPTS += -i --style=file

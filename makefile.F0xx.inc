@@ -25,7 +25,7 @@
 # F0 specifics
 
 STARTUP_FILE = startup_stm32f0xx.s
-LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f0xx_flash.ld.in
+LINKER_SCRIPT_IN = $(STM32X_DIR)/linker/stm32f0xx_flash.ld.in
 SYSTEM_DEFINES += GCC_ARMCM0 STM32X_F0XX ARM_MATH_CM0
 ARCH_FLAGS += -mcpu=cortex-m0
 
@@ -36,7 +36,7 @@ INCLUDES += $(ST_DIR)Device/STM32F0xx/Include/
 INCLUDES += $(STM32_STDPERIPH_DIR)inc
 
 PROJECT_SRC_DIRS += $(STM32_STDPERIPH_DIR)src
-PROJECT_SRC_DIRS += $(STM32X_DIR)src/F0
+PROJECT_SRC_DIRS += $(STM32X_DIR)/src/F0
 
 C_FILES += system_stm32f0xx.c
 AS_FILES += $(STARTUP_FILE)

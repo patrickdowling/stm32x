@@ -25,7 +25,7 @@
 # F37x specifics
 
 STARTUP_FILE = startup_stm32f37x.s
-LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f37x_flash.ld.in
+LINKER_SCRIPT_IN = $(STM32X_DIR)/linker/stm32f37x_flash.ld.in
 SYSTEM_DEFINES += GCC_ARMCM4 STM32X_F37X ARM_MATH_CM4 __FPU_PRESENT
 ARCH_FLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
@@ -36,7 +36,7 @@ INCLUDES += $(ST_DIR)Device/STM32F37x/Include/
 INCLUDES += $(STM32_STDPERIPH_DIR)inc
 
 PROJECT_SRC_DIRS += $(STM32_STDPERIPH_DIR)src
-PROJECT_SRC_DIRS += $(STM32X_DIR)stm32f37x
+PROJECT_SRC_DIRS += $(STM32X_DIR)/stm32f37x
 
 C_FILES += system_stm32f37x.c
 AS_FILES += $(STARTUP_FILE)

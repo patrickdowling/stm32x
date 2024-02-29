@@ -34,7 +34,7 @@ ifeq ($(ENABLE_CCM_STACK),TRUE)
 endif
 
 STARTUP_FILE ?= startup_stm32f40xx.s
-LINKER_SCRIPT_IN = $(STM32X_DIR)linker/stm32f4xx_flash.ld.in
+LINKER_SCRIPT_IN = $(STM32X_DIR)/linker/stm32f4xx_flash.ld.in
 SYSTEM_DEFINES += GCC_ARMCM4 STM32X_F4XX ARM_MATH_CM4 __FPU_PRESENT
 ARCH_FLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
@@ -45,7 +45,7 @@ INCLUDES += $(ST_DIR)Device/STM32F4xx/Include/
 INCLUDES += $(STM32_STDPERIPH_DIR)inc
 
 PROJECT_SRC_DIRS += $(STM32_STDPERIPH_DIR)src
-PROJECT_SRC_DIRS += $(STM32X_DIR)stm32f4xx
+PROJECT_SRC_DIRS += $(STM32X_DIR)/stm32f4xx
 
 C_FILES += system_stm32f4xx.c
 AS_FILES += $(STARTUP_FILE)

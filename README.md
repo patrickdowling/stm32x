@@ -38,5 +38,8 @@
 - In general it seems useful to use the ST `STM32CubeF0` et al. repositories...
 - ...the but there is that the model #defines have changed so mixing newer ST with StdPeriphLib seems dangerous.
 
+## Notes to self
+- Paths generally without the trailing `/`. This is perhaps arbitrary but after mixing & matching that's how it landed.
+
 ## Stuff
 - Obviously inspired by [stmlib](https://github.com/pichenettes/stmlib)!

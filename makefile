@@ -1,4 +1,4 @@
-# Copyright 2018 Patrick Dowling.
+# Copyright 2018-2024 Patrick Dowling.
 #
 # Author: Patrick Dowling (pld@gurkenkiste.com)
 #
@@ -22,8 +22,8 @@
 #
 # See http://creativecommons.org/licenses/MIT/ for more information.
 #
-# Expected to be defined are
-#
+# Expected to be defined are:
+# TOOLCHAIN_PATH = root path for compiler (gcc)
 # PROJECT = <name of project>
 # PROJECT_SRC_DIRS = <directories containing project source>
 # PROJECT_RESOURCE_DIR = <directory with python buildable resources>
@@ -36,14 +36,12 @@
 # PROJECT_DEFINES = <additional project-specific defines (without -D)>
 # FLASH_SETTINGS_SIZE (optional)
 # PROJECT_INCLUDE_DIRS
+#
 
-check_variable_list = \
-    $(strip $(foreach 1,$1, \
-        $(call __check_variable_list,$1,$(strip $(value 2)))))
-__check_variable_list = \
-    $(if $(value $1),, \
-      $(error Undefined $1$(if $2, ($2))))
+STM32X_DIR = ./stm32x
+include $(STM32X_DIR)/mk/utils.mk
 
+$(call check_variable_list, TOOLCHAIN_PATH)
 $(call check_variable_list, PROJECT PROJECT_SRC_DIRS)
 $(call check_variable_list, MODEL, F_CPU)
 $(call check_variable_list, RAM_SIZE FLASH_SIZE)
@@ -51,26 +49,23 @@ $(call check_variable_list, RAM_SIZE FLASH_SIZE)
 ###
 ## General setup
 #
-TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
-BUILD_DIR	?= build/$(PROJECT)/
+BUILD_DIR ?= build/$(PROJECT)
+
 OPTIMIZE ?= -O2
 FLASH_TARGET ?= flash_bmp
 
-STM32X_DIR = ./stm32x/
-SCRIPT_DIR = $(STM32X_DIR)scripts/
+SCRIPT_DIR = $(STM32X_DIR)/scripts
 
-STM32X_CPPSTD ?= c++11
+STM32X_CPPSTD ?= c++17
 STM32X_CSTD   ?= c11
 
 PROJECT_SRC_DIRS += $(PROJECT_RESOURCE_DIR)
 PROJECT_RESOURCE_FILE = $(PROJECT_RESOURCE_SCRIPT:.py=.cc)
 
-PROJECT_SRC_DIRS += $(STM32X_DIR)src
-PROJECT_SRC_DIRS += $(STM32X_DIR)src/util
+PROJECT_SRC_DIRS += $(STM32X_DIR)/src
+PROJECT_SRC_DIRS += $(STM32X_DIR)/src/util
 
-SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += F_CPU=$(F_CPU)
-SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
 
 MAX_FRAME_SIZE ?= 128
 
@@ -125,19 +120,25 @@ ARCH_FLAGS += -mthumb -mthumb-interwork -funroll-loops -specs=nano.specs -specs=
 ## Model-specific handling
 #
 ifneq (,$(findstring STM32F0,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)makefile.F0xx.inc
+MODEL_INC = $(STM32X_DIR)/makefile.F0xx.inc
 else ifneq (,$(findstring STM32F37,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)makefile.F37x.inc
+MODEL_INC = $(STM32X_DIR)/makefile.F37x.inc
 else ifneq (,$(findstring STM32F4,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)makefile.F4xx.inc
+MODEL_INC = $(STM32X_DIR)/makefile.F4xx.inc
 endif
 ifeq (,$(MODEL_INC))
 MODEL_INC = $(error Undefined model '$(MODEL)')
 endif
 
-STM32X_EXTERN_DIR = $(STM32X_DIR)extern/
+STM32X_EXTERN_DIR = $(STM32X_DIR)/extern/
 STM32X_CMSIS_DIR = $(STM32X_EXTERN_DIR)CMSIS
-ST_DIR = $(STM32X_DIR)extern/ST/
+ST_DIR = $(STM32X_DIR)/extern/ST/
+
+SYSTEM_DEFINES += $(MODEL)
+SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
+
+INCLUDES += $(STM32X_CMSIS_DIR)/Core/Include
+INCLUDES += $(STM32X_CMSIS_DIR)/DSP/Include
 
 include $(MODEL_INC)
 
@@ -146,9 +147,7 @@ include $(MODEL_INC)
 #
 INCLUDES += $(PROJECT_INCLUDE_DIRS)
 INCLUDES += $(PROJECT_RESOURCE_DIR)
-INCLUDES += $(STM32X_DIR)include
-INCLUDES += $(STM32X_CMSIS_DIR)/Core/Include
-INCLUDES += $(STM32X_CMSIS_DIR)/DSP/Include
+INCLUDES += $(STM32X_DIR)/include
 
 C_FILES   += $(notdir $(wildcard $(patsubst %,%/*.c,$(PROJECT_SRC_DIRS))))
 CC_FILES  += $(notdir $(wildcard $(patsubst %,%/*.cc,$(PROJECT_SRC_DIRS))))
@@ -189,7 +188,7 @@ SYSTEM_DEFINES += \
 	HSE_VALUE=$(HSE_VALUE)
 endif
 
-PROJECT_LINKER_SCRIPT = $(BUILD_DIR)$(PROJECT).ld
+PROJECT_LINKER_SCRIPT = $(BUILD_DIR)/$(PROJECT).ld
 
 LD_FLAGS = \
 	-Wl,-Map=$(MAPFILE) \
@@ -204,15 +203,7 @@ LD_FLAGS = \
 ###
 ## Setup
 #
-ifdef VERBOSE
-Q :=
-ECHO := @true
-else
-Q := @
-ECHO := @echo
-endif
-
-ARCH_PATH = $(TOOLCHAIN_PATH)bin/arm-none-eabi
+ARCH_PATH = $(TOOLCHAIN_PATH)/arm-none-eabi
 CC	:= $(ARCH_PATH)-gcc
 CXX	:= $(ARCH_PATH)-g++
 AS	:= $(ARCH_PATH)-as
@@ -234,16 +225,16 @@ endif
 ###
 ## Objects & build rules
 #
-BINFILE = $(BUILD_DIR)$(PROJECT).bin
-ELFFILE = $(BUILD_DIR)$(PROJECT).elf
-HEXFILE = $(BUILD_DIR)$(PROJECT).hex
-MAPFILE = $(BUILD_DIR)$(PROJECT).map
-SIZEFILE = $(BUILD_DIR)$(PROJECT).size
-DISFILE  = $(BUILD_DIR)$(PROJECT).s
+BINFILE = $(BUILD_DIR)/$(PROJECT).bin
+ELFFILE = $(BUILD_DIR)/$(PROJECT).elf
+HEXFILE = $(BUILD_DIR)/$(PROJECT).hex
+MAPFILE = $(BUILD_DIR)/$(PROJECT).map
+SIZEFILE = $(BUILD_DIR)/$(PROJECT).size
+DISFILE  = $(BUILD_DIR)/$(PROJECT).s
 
-OBJS = $(patsubst %,$(OBJDIR)%,$(C_FILES:.c=.o))
-OBJS += $(patsubst %,$(OBJDIR)%,$(CC_FILES:.cc=.o))
-OBJS += $(patsubst %,$(OBJDIR)%,$(AS_FILES:.s=.o))
+OBJS = $(patsubst %,$(OBJDIR)/%,$(C_FILES:.c=.o))
+OBJS += $(patsubst %,$(OBJDIR)/%,$(CC_FILES:.cc=.o))
+OBJS += $(patsubst %,$(OBJDIR)/%,$(AS_FILES:.s=.o))
 DEPS  = $(OBJS:.o=.d)
 
 C_FLAGS += $(OPTIMIZE)
@@ -251,23 +242,23 @@ C_FLAGS += $(addprefix -I, $(INCLUDES))
 C_FLAGS += $(addprefix -D, $(PROJECT_DEFINES)) $(addprefix -D, $(SYSTEM_DEFINES)) $(ARCH_FLAGS)
 C_FLAGS += -MMD -MP # dependency generation
 
-$(BUILD_DIR)%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	$(ECHO) "CC $<..."
 	$(Q)$(CC) -c -std=$(STM32X_CSTD) $(C_FLAGS) $< -o $@
 
-$(BUILD_DIR)%.o: %.cc
+$(BUILD_DIR)/%.o: %.cc
 	$(ECHO) "CXX $<..."
 	$(Q)$(CXX) -c -std=$(STM32X_CPPSTD) $(C_FLAGS) $(CPP_FLAGS) $< -o $@
 
-$(BUILD_DIR)%.o: %.s
+$(BUILD_DIR)/%.o: %.s
 	$(ECHO) "AS $<..."
 	$(Q)$(CC) -c $(addprefix -D, $(SYSTEM_DEFINES)) -x assembler-with-cpp $< -o $@
 
-$(BUILD_DIR)%.hex: $(BUILD_DIR)%.elf
+$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
 	$(ECHO) "Creating hex $@..."
 	$(Q)$(OBJCOPY) -O ihex $< $@
 
-$(BUILD_DIR)%.bin: $(BUILD_DIR)%.elf
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(ECHO) "Creating binary $@..."
 	$(Q)$(OBJCOPY) -O binary $< $@
 
@@ -321,7 +312,7 @@ $(PROJECT_RESOURCE_FILE): $(RESOURCE_PY_FILES)
 
 $(PROJECT_RESOURCE_SCRIPT:.py=.cc): $(PROJECT_RESOURCE_SCRIPT) $(RESOURCE_PY_FILES)
 	$(ECHO) "PY $^"
-	$(Q)PYTHONPATH="$(STM32X_DIR)" python3 $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
+	$(Q)PYTHONPATH="$(STM32X_DIR)/" python3 $(PROJECT_RESOURCE_SCRIPT) $(PROJECT_RESOURCE_FILE)
 
 
 .PHONY: dump
@@ -337,7 +328,7 @@ dump:
 ## GPIO export (still super experimental)
 #
 PROJECT_CSV_FILE = $(PROJECT_IOC_FILE:.ioc=.csv)
-PINOUT_SCRIPT = $(BUILD_DIR)$(PROJECT).scr
+PINOUT_SCRIPT = $(BUILD_DIR)/$(PROJECT).scr
 PINOUT_GPIO_PATH ?= ./src/drivers/$(PROJECT)_gpio
 
 ifeq "$(shell uname)" "Linux"
@@ -358,8 +349,8 @@ $(PINOUT_SCRIPT): $(BUILD_DIR) $(PROJECT_IOC_FILE)
 
 .PHONY: pinout
 pinout: $(PINOUT_SCRIPT)
-	$(CUBEMX_EXE) -s $(shell realpath $(PINOUT_SCRIPT)) > $(BUILD_DIR)cubemx.log
-	python3 $(STM32X_DIR)tools/stm32x_cubemx_gpio_export.py $(PROJECT_IOC_FILE) $(PROJECT_CSV_FILE) \
+	$(CUBEMX_EXE) -s $(shell realpath $(PINOUT_SCRIPT)) > $(BUILD_DIR)/cubemx.log
+	python3 $(STM32X_DIR)/tools/stm32x_cubemx_gpio_export.py $(PROJECT_IOC_FILE) $(PROJECT_CSV_FILE) \
 		--namespace $(PROJECT) --numeric $(PINOUT_OPTIONS) \
 		--cubemx $(CUBEMX) \
 		-o $(PINOUT_GPIO_PATH)
@@ -387,11 +378,11 @@ endif
 flash_bmp: $(ELFFILE)
 	$(Q)$(GDB) -nx -batch \
 		-ex 'target extended-remote $(BMP_PORT)' \
-		-x $(SCRIPT_DIR)bmp_flash_swd.scr \
+		-x $(SCRIPT_DIR)/bmp_flash_swd.scr \
 		$(ELFFILE)
 
 .PHONY: debug_bmp
 debug_bmp: $(ELFFILE)
 	$(Q)$(GDB) -ex 'target extended-remote $(BMP_PORT)' \
-		-x $(SCRIPT_DIR)bmp_gdb_swd.scr \
+		-x $(SCRIPT_DIR)/bmp_gdb_swd.scr \
 		$(ELFFILE)
