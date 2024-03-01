@@ -118,11 +118,7 @@ ARCH_FLAGS += -mthumb -mthumb-interwork -funroll-loops -specs=nano.specs -specs=
 ###
 ## Model-specific handling
 #
-ifneq (,$(findstring STM32F0,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)/makefile.F0xx.inc
-else ifneq (,$(findstring STM32F37,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)/makefile.F37x.inc
-else ifneq (,$(findstring STM32F4,$(MODEL)))
+ifneq (,$(findstring STM32F4,$(MODEL)))
 MODEL_INC = $(STM32X_DIR)/makefile.F4xx.inc
 endif
 ifeq (,$(MODEL_INC))
