@@ -27,15 +27,14 @@
 
 #include <stdint.h>
 
-#if defined STM32X_F0XX
-#include "stm32f0xx.h"
-#elif defined STM32X_F37X
-#include "stm32f37x.h"
-#elif defined STM32X_F4XX
-#include "stm32f4xx.h"
-#else
-#error "INVALID MODEL"
-#endif
+namespace stm32x {
+// GPIO forward declarations
+enum GPIO_PORT : short;
+enum struct GPIO_MODE : uint32_t;
+enum struct GPIO_SPEED : uint32_t;
+enum struct GPIO_OTYPE : uint32_t;
+enum struct GPIO_PUPD : uint32_t;
+}  // namespace stm32x
 
 #include "util/util_macros.h"
 

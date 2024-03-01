@@ -30,10 +30,8 @@
 
 #include <algorithm>
 
-#if defined STM32X_F0XX
-#error "DEBUG INTERFACE NOT SUPPORTED ON M0"
-#else
-#include "stm32x.h"
+#include "stm32x_model.h"
+
 #include "stm32x_math.h"
 
 namespace stm32x {
@@ -109,5 +107,4 @@ private:
 
 }  // namespace stm32x
 
-#endif
 #endif  // STM32X_DEBUG_H_

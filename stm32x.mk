@@ -10,9 +10,7 @@
 # furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -131,10 +129,7 @@ STM32X_CMSIS_DIR = $(STM32X_EXTERN_DIR)/CMSIS
 ST_DIR = $(STM32X_EXTERN_DIR)/ST/
 
 SYSTEM_DEFINES += $(MODEL)
-SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
-
-INCLUDES += $(STM32X_CMSIS_DIR)/Core/Include
-INCLUDES += $(STM32X_CMSIS_DIR)/DSP/Include
+INCLUDES += $(STM32X_MODEL_DIR)/include
 
 include $(MODEL_INC)
 
@@ -231,6 +226,7 @@ DEPS  = $(OBJS:.o=.d)
 
 C_FLAGS += $(OPTIMIZE)
 C_FLAGS += $(addprefix -I, $(INCLUDES))
+C_FLAGS += $(addprefix -isystem, $(SYS_INCLUDES))
 C_FLAGS += $(addprefix -D, $(PROJECT_DEFINES)) $(addprefix -D, $(SYSTEM_DEFINES)) $(ARCH_FLAGS)
 C_FLAGS += -MMD -MP # dependency generation
 

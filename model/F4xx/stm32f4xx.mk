@@ -25,6 +25,7 @@
 # F4xx specifics
 
 $(call check_variable_list, CCM_RAM_SIZE HSE_VALUE)
+$(call check_variable_list, STM32X_HAL_DIR)
 
 SYSTEM_DEFINES += \
 	CCM_RAM_SIZE=$(shell $(NUMFMT) --from=iec $(CCM_RAM_SIZE))
@@ -33,21 +34,36 @@ ifeq ($(ENABLE_CCM_STACK),TRUE)
 	SYSTEM_DEFINES += ENABLE_CCM_STACK
 endif
 
-SYSTEM_DEFINES += GCC_ARMCM4 STM32X_F4XX ARM_MATH_CM4 __FPU_PRESENT
+SYSTEM_DEFINES += ARM_MATH_CM4
+#__FPU_PRESENT
 ARCH_FLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-STARTUP_FILE ?= startup_stm32f40xx.s
+STARTUP_FILE ?= "startup_$(MODEL).s"
 LINKER_SCRIPT_IN = $(STM32X_MODEL_DIR)/linker/stm32f4xx_flash.ld.in
 
-STM32_STDPERIPH_DIR=$(ST_DIR)STM32F4xx_StdPeriph_Driver/
+ST_CMSIS_DIR = $(STM32X_HAL_DIR)/CMSIS
+ST_HAL_DIR =$(STM32X_HAL_DIR)/STM32F4xx_HAL_Driver
+ST_CORE_DIR = $(STM32X_HAL_DIR)/Core
 
-INCLUDES += $(ST_DIR)Device
-INCLUDES += $(ST_DIR)Device/STM32F4xx/Include/
-INCLUDES += $(STM32_STDPERIPH_DIR)inc
+SYS_INCLUDES += $(ST_CMSIS_DIR)/include
+SYS_INCLUDES += $(ST_CMSIS_DIR)/Device/ST/STM32F4xx/Include
+SYS_INCLUDES += $(ST_HAL_DIR)/Inc
+SYS_INCLUDES += $(ST_HAL_DIR)/Inc/Legacy
+SYS_INCLUDES += $(ST_CORE_DIR)/Inc
 
-PROJECT_SRC_DIRS += $(STM32_STDPERIPH_DIR)src
-PROJECT_SRC_DIRS += $(STM32X_DIR)/stm32f4xx
+SYSTEM_DEFINES += USE_FULL_LL_DRIVER
+SYSTEM_DEFINES += USE_HAL_DRIVER
 
+C_FILES += stm32f4xx_ll_gpio.c \
+	   stm32f4xx_ll_rcc.c \
+	   stm32f4xx_ll_spi.c \
+	   stm32f4xx_ll_tim.c \
+	   stm32f4xx_ll_usart.c \
+	   stm32f4xx_ll_utils.c \
+	   stm32f4xx_hal.c \
+	   stm32f4xx_hal_cortex.c
 C_FILES += system_stm32f4xx.c
+
 AS_FILES += $(STARTUP_FILE)
-VPATH += $(ST_DIR)Device/STM32F4xx/Source/
+
+VPATH += $(ST_HAL_DIR)/Src $(ST_CORE_DIR)/Src

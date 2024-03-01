@@ -26,14 +26,9 @@
 #define STM32X_CORE_H_
 
 #include "stm32x.h"
+#include "stm32x_model.h" // model-dependent include
 
 namespace stm32x {
-// GPIO forward declarations
-enum GPIO_PORT : short;
-enum struct GPIO_MODE : uint8_t;
-enum struct GPIO_SPEED : uint8_t;
-enum struct GPIO_OTYPE : uint8_t;
-enum struct GPIO_PUPD : uint8_t;
 
 // Core timing and other functionality common to all platforms
 class Core {
