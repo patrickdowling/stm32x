@@ -134,10 +134,8 @@ LoopFillZeroCCMZ:
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
 
-#ifdef ENABLE_LIBC_INIT_ARRAY
 /* Call static constructors */
     bl __libc_init_array
-#endif
 
 /* Call the application's entry point.*/
   bl  main

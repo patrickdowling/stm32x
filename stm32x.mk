@@ -54,7 +54,8 @@ BUILD_DIR ?= build/$(PROJECT)
 OPTIMIZE ?= -O2
 FLASH_TARGET ?= flash_bmp
 
-SCRIPT_DIR = $(STM32X_DIR)/scripts
+STM32X_SCRIPT_DIR = $(STM32X_DIR)/scripts
+STM32X_EXTERN_DIR = $(STM32X_DIR)/extern/
 
 STM32X_CPPSTD ?= c++17
 STM32X_CSTD   ?= c11
@@ -119,15 +120,15 @@ ARCH_FLAGS += -mthumb -mthumb-interwork -funroll-loops -specs=nano.specs -specs=
 ## Model-specific handling
 #
 ifneq (,$(findstring STM32F4,$(MODEL)))
-MODEL_INC = $(STM32X_DIR)/makefile.F4xx.inc
+STM32X_MODEL_DIR = $(STM32X_DIR)/model/F4xx
+MODEL_INC = $(STM32X_MODEL_DIR)/stm32f4xx.mk
 endif
 ifeq (,$(MODEL_INC))
 MODEL_INC = $(error Undefined model '$(MODEL)')
 endif
 
-STM32X_EXTERN_DIR = $(STM32X_DIR)/extern/
-STM32X_CMSIS_DIR = $(STM32X_EXTERN_DIR)CMSIS
-ST_DIR = $(STM32X_DIR)/extern/ST/
+STM32X_CMSIS_DIR = $(STM32X_EXTERN_DIR)/CMSIS
+ST_DIR = $(STM32X_EXTERN_DIR)/ST/
 
 SYSTEM_DEFINES += $(MODEL)
 SYSTEM_DEFINES += USE_STDPERIPH_DRIVER
@@ -172,10 +173,6 @@ endif
 ifneq (,$(FLASH_SETTINGS_SIZE))
 SYSTEM_DEFINES += \
 	FLASH_SETTINGS_SIZE=$(shell $(NUMFMT) --from=iec $(FLASH_SETTINGS_SIZE))
-endif
-
-ifeq ($(ENABLE_LIBC_INIT_ARRAY),TRUE)
-	SYSTEM_DEFINES += ENABLE_LIBC_INIT_ARRAY
 endif
 
 ifneq (,$(HSE_VALUE))
@@ -353,7 +350,6 @@ pinout: $(PINOUT_SCRIPT)
 ###
 ## Flash/programming
 #
-
 .PHONY: flash
 flash: $(FLASH_TARGET)
 
@@ -373,11 +369,11 @@ endif
 flash_bmp: $(ELFFILE)
 	$(Q)$(GDB) -nx -batch \
 		-ex 'target extended-remote $(BMP_PORT)' \
-		-x $(SCRIPT_DIR)/bmp_flash_swd.scr \
+		-x $(STM32X_SCRIPT_DIR)/bmp_flash_swd.scr \
 		$(ELFFILE)
 
 .PHONY: debug_bmp
 debug_bmp: $(ELFFILE)
 	$(Q)$(GDB) -ex 'target extended-remote $(BMP_PORT)' \
-		-x $(SCRIPT_DIR)/bmp_gdb_swd.scr \
+		-x $(STM32X_SCRIPT_DIR)/bmp_gdb_swd.scr \
 		$(ELFFILE)
