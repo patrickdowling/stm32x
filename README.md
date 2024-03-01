@@ -9,7 +9,7 @@
 
 ## How does it work?
 - Basically, add `stm32x` as a subdirectory/-module in the project.
-- Create a suitable makefile that sets the right things and `include stm32x/makefile` (e.g. [oCf4](https://github.com/patrickdowling/oCf4))
+- Create a suitable makefile that sets the right things and `include stm32x/stm32x.mk` (e.g. [oCf4](https://github.com/patrickdowling/oCf4))
 - The CubeMX export requires some addtitional steps and isn't part of of the makefile.
 
 ## Should I use it?

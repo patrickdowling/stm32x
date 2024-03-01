@@ -43,7 +43,7 @@ include $(STM32X_DIR)/mk/utils.mk
 
 $(call check_variable_list, TOOLCHAIN_PATH)
 $(call check_variable_list, PROJECT PROJECT_SRC_DIRS)
-$(call check_variable_list, MODEL, F_CPU)
+$(call check_variable_list, MODEL F_CPU HSE_VALUE)
 $(call check_variable_list, RAM_SIZE FLASH_SIZE)
 
 ###
@@ -92,8 +92,7 @@ C_FLAGS += -g -Wall -Werror -Wextra \
 	   -Wshadow \
 	   -Wshift-overflow=2 \
 	   -Wtrampolines \
-	   -Wundef \
-
+	   -Wundef
 
 CPP_FLAGS += -fno-exceptions \
 	     -fno-rtti -fno-use-cxa-atexit \

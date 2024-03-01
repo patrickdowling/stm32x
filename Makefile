@@ -9,6 +9,11 @@ endif
 CLANG_FORMAT_DIRS = include/ src/
 CLANG_FORMAT_SHALLOW_DIRS = test/
 
+.PHONY: help
+help:
+	@echo "Available targets"
+	@echo "make format (apply clang-format)"
+
 .PHONY: format
 format:
 	$(Q)clang-format $(CLANG_FORMAT_OPTS) \
