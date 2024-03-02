@@ -41,8 +41,8 @@ ARCH_FLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 STARTUP_FILE ?= "startup_$(MODEL).s"
 LINKER_SCRIPT_IN = $(STM32X_MODEL_DIR)/linker/stm32f4xx_flash.ld.in
 
-ST_CMSIS_DIR = $(STM32X_HAL_DIR)/CMSIS
-ST_HAL_DIR =$(STM32X_HAL_DIR)/STM32F4xx_HAL_Driver
+ST_CMSIS_DIR = $(STM32X_HAL_DIR)/Drivers/CMSIS
+ST_HAL_DIR =$(STM32X_HAL_DIR)/Drivers/STM32F4xx_HAL_Driver
 ST_CORE_DIR = $(STM32X_HAL_DIR)/Core
 
 SYS_INCLUDES += $(ST_CMSIS_DIR)/include
